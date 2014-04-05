@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ebebeb">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:id="@+id/horizontalScrollView"
+        android:layout_gravity="center_horizontal" >
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:baselineAligned="false">
+
+        <ImageView
+            android:layout_height="fill_parent"
+            android:id="@+id/imageView"
+            android:src="@drawable/tn_1"
+            android:contentDescription="Tumbail"
+            android:layout_width="600dp"
+            android:layout_weight="1" />
+        <ImageView
+            android:layout_height="fill_parent"
+            android:id="@+id/imageView2"
+            android:src="@drawable/tn_1"
+            android:contentDescription="Tumbail"
+            android:layout_width="600dp"
+            android:layout_weight="1" />
+        <ImageView
+            android:layout_height="fill_parent"
+            android:id="@+id/imageView3"
+            android:src="@drawable/tn_1"
+            android:contentDescription="Tumbail"
+            android:layout_width="600dp"
+            android:layout_weight="1" />
+        </LinearLayout>
+        </HorizontalScrollView>
+
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray"/>
+    <ListView
+        android:id="@+id/innerFilesList"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2">
+
+    </ListView>
+</LinearLayout>

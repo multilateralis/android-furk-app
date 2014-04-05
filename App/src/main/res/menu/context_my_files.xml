@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--<item-->
+        <!--android:title="@string/context_open"-->
+        <!--android:id="@+id/menu_open"/>-->
+    <!--<item-->
+        <!--android:title="@string/context_open_browser"-->
+        <!--android:id="@+id/menu_open_browser"/>-->
+    <!--<item-->
+        <!--android:title="@string/context_download"-->
+        <!--android:id="@+id/menu_download"/>-->
+    <item
+        android:title="@string/context_copy_name"
+        android:id="@+id/menu_copy_name"/>
+    <item
+    android:title="@string/context_link_address"
+    android:id="@+id/menu_copy_link"/>
+</menu>
