@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
             startActivityForResult(intent,1);
         }
         else {
-            APIRequest.setAPIKEY(apiKey);
+            APIClient.setAPIKEY(apiKey);
             Intent intent = new Intent(this,Furk.class);
             intent.setData(getIntent().getData());
             startActivity(intent);
@@ -50,7 +50,7 @@ public class MainActivity extends ActionBarActivity {
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String apiKey = preferences.getString("api_key","");
-            APIRequest.setAPIKEY(apiKey);
+            APIClient.setAPIKEY(apiKey);
             Intent intent = new Intent(this,Furk.class);
             intent.setData(getIntent().getData());
             startActivity(intent);

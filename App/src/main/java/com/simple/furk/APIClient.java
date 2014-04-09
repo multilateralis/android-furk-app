@@ -1,9 +1,7 @@
 package com.simple.furk;
 
-import android.content.SharedPreferences;
+
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -15,14 +13,18 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.loopj.android.http.*;
 
-public class APIRequest extends AsyncTask<String, String, JSONObject> {
 
-    private static final String API_BASE = "https://www.furk.net/api/";
+public class APIClient extends AsyncTask<String, String, JSONObject> {
+
+    private static final String BASE_URL = "https://www.furk.net/api/";
     private static  String API_KEY = "";
     private final APICallback callback;
 
-    public APIRequest(APICallback callback)
+    private static AsyncHttpClient client = new AsyncHttpClient();
+
+    public APIClient(APICallback callback)
     {
         this.callback = callback;
     }
@@ -31,6 +33,21 @@ public class APIRequest extends AsyncTask<String, String, JSONObject> {
     {
         API_KEY = api_key;
     }
+
+
+    public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.get(getAbsoluteUrl(url), params, responseHandler);
+    }
+
+    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.post(getAbsoluteUrl(url), params, responseHandler);
+    }
+
+    private static String getAbsoluteUrl(String relativeUrl) {
+        return BASE_URL + relativeUrl;
+    }
+
+
     @Override
     protected JSONObject doInBackground(String... strings) {
             return makeAPIRequest(strings);
@@ -42,7 +59,7 @@ public class APIRequest extends AsyncTask<String, String, JSONObject> {
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
         try {
-            StringBuilder sb = new StringBuilder(API_BASE);
+            StringBuilder sb = new StringBuilder(BASE_URL);
             sb.append(strings[0]);
             sb.append("?api_key=" + API_KEY);
             for (int i = 1; i< strings.length;i++)

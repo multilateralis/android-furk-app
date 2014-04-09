@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.simple.furk.APIRequest;
+import com.simple.furk.APIClient;
 import com.simple.furk.R;
 
 import org.json.JSONArray;
@@ -30,8 +30,8 @@ public class TFilesAdapter extends FilesAdapter {
     public void Execute(Object... args)
     {
         jArrayChain.clear();
-        APIRequest apiRequest = new APIRequest(this);
-        apiRequest.execute("file/get","id="+args[0],"t_files=1");
+        APIClient apiClient = new APIClient(this);
+        apiClient.execute("file/get","id="+args[0],"t_files=1");
     }
 
 

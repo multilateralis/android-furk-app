@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.simple.furk.APIRequest;
+import com.simple.furk.APIClient;
 import com.simple.furk.Furk;
 import com.simple.furk.R;
 
@@ -40,8 +40,8 @@ public class MyFilesAdapter extends FilesAdapter {
                 jArrayChain.clear();
             }
         firstLoad = true;
-        APIRequest apiRequest = new APIRequest(this);
-        apiRequest.execute("file/get");
+        APIClient apiClient = new APIClient(this);
+        apiClient.execute("file/get");
         ((Furk)context).setRefreshing();
     }
 
@@ -108,8 +108,8 @@ public class MyFilesAdapter extends FilesAdapter {
 
     private void getMoreFiles()
     {
-        APIRequest apiRequest = new APIRequest(this);
-        apiRequest.execute("file/get","offset="+jArrayChain.length());
+        APIClient apiClient = new APIClient(this);
+        apiClient.execute("file/get","offset="+jArrayChain.length());
     }
 
 

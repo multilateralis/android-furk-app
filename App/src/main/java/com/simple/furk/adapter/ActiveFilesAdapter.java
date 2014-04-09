@@ -9,7 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.simple.furk.APIRequest;
+import com.simple.furk.APIClient;
 import com.simple.furk.Furk;
 import com.simple.furk.R;
 
@@ -32,8 +32,8 @@ public class ActiveFilesAdapter extends FilesAdapter {
     @Override
     public void Execute(Object... args) {
         jArrayChain.clear();
-        APIRequest apiRequest = new APIRequest(this);
-        apiRequest.execute("dl/get");
+        APIClient apiClient = new APIClient(this);
+        apiClient.execute("dl/get");
         ((Furk)context).setRefreshing();
     }
 

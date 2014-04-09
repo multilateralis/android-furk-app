@@ -6,18 +6,14 @@ import android.content.DialogInterface;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Furk extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks,OnQueryTextListener,APIRequest.APICallback {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,OnQueryTextListener,APIClient.APICallback {
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -73,7 +69,7 @@ public class Furk extends ActionBarActivity
         if (scheme != null) {
              if (scheme.equals("magnet") || scheme.equals("http") || scheme.equals("https")) {
                 String torrent = getIntent().getDataString();
-                APIRequest request = new APIRequest(this);
+                APIClient request = new APIClient(this);
                 request.execute("dl/add", "url=" + torrent);
                 Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
             }
@@ -432,7 +428,7 @@ public class Furk extends ActionBarActivity
 
     }
 
-    public static class ActiveFilesFragment extends ListFragment implements APIRequest.APICallback {
+    public static class ActiveFilesFragment extends ListFragment implements APIClient.APICallback {
 
         protected ActiveFilesAdapter adapter;
         @Override
@@ -478,7 +474,7 @@ public class Furk extends ActionBarActivity
                 adb.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
-                        APIRequest request = new APIRequest(ActiveFilesFragment.this);
+                        APIClient request = new APIClient(ActiveFilesFragment.this);
                         try {
                             request.execute("dl/add","info_hash="+ jObj.getString("info_hash"));
                         } catch (JSONException e) {

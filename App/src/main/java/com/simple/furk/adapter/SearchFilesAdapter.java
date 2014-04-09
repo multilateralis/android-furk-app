@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.simple.furk.APIRequest;
+import com.simple.furk.APIClient;
 import com.simple.furk.R;
 
 import org.json.JSONArray;
@@ -33,8 +33,8 @@ public class SearchFilesAdapter extends FilesAdapter {
     {
         jArrayChain.clear();
         query = (String)args[0];
-        APIRequest apiRequest = new APIRequest(this);
-        apiRequest.execute("plugins/metasearch","q="+query);
+        APIClient apiClient = new APIClient(this);
+        apiClient.execute("plugins/metasearch","q="+query);
     }
 
 
@@ -73,9 +73,9 @@ public class SearchFilesAdapter extends FilesAdapter {
 
     private void getMoreFiles()
     {
-        APIRequest apiRequest;
-        apiRequest = new APIRequest(this);
-        apiRequest.execute("plugins/metasearch","q="+query,"offset="+jArrayChain.length());
+        APIClient apiClient;
+        apiClient = new APIClient(this);
+        apiClient.execute("plugins/metasearch","q="+query,"offset="+jArrayChain.length());
     }
 
     @Override

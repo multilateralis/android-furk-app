@@ -3,7 +3,7 @@ package com.simple.furk.adapter;
 import android.content.Context;
 import android.widget.BaseAdapter;
 
-import com.simple.furk.APIRequest;
+import com.simple.furk.APIClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-public abstract class FilesAdapter extends BaseAdapter implements APIRequest.APICallback {
+public abstract class FilesAdapter extends BaseAdapter implements APIClient.APICallback {
 
     protected final Context context;
     protected JSONArrayChain jArrayChain;
