@@ -68,40 +68,14 @@ public class Furk extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        Log.d("Furk","App Started");
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String apiKey = preferences.getString("api_key","");
 
-        if(apiKey.isEmpty())
-        {
-            Toast.makeText(this,"Please set the api key in settings",Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(this,SettingsActivity.class);
-            startActivity(intent);
-        }
-        else {
-            APIRequest.setAPIKEY(apiKey);
-            String scheme = getIntent().getScheme();
-
-            if (scheme != null) {
-                if (scheme.equals("magnet")) {
-                    String magnet = getIntent().getDataString();
-                    int start = magnet.indexOf("xt=urn:btih:");
-                    if (start > -1) {
-                        int hashStart = start + "xt=urn:btih:".length();
-                        int hashEnd = magnet.indexOf("&", hashStart);
-                        String hash = magnet.substring(hashStart, hashEnd);
-                        APIRequest request = new APIRequest(this);
-                        request.execute("dl/add", "info_hash=" + hash);
-                        Toast.makeText(this, "Adding torrent", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(this, "Invalid or unsupported magnet link", Toast.LENGTH_LONG).show();
-                    }
-                } else if (scheme.equals("http") || scheme.equals("https")) {
-                    String torrent = getIntent().getDataString();
-                    APIRequest request = new APIRequest(this);
-                    request.execute("dl/add", "url=" + torrent);
-                    Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
-                }
+        String scheme = getIntent().getScheme();
+        if (scheme != null) {
+             if (scheme.equals("magnet") || scheme.equals("http") || scheme.equals("https")) {
+                String torrent = getIntent().getDataString();
+                APIRequest request = new APIRequest(this);
+                request.execute("dl/add", "url=" + torrent);
+                Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
             }
         }
 

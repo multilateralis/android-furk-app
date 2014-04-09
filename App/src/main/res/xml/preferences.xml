@@ -2,9 +2,14 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_title">
-    <EditTextPreference
-        android:key="api_key"
-        android:title="API Key"
-        android:summary="@string/settings_description"/>
+
+    <Preference android:title="Logout">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.simple.furk"
+            android:targetClass="com.simple.furk.MainActivity"
+            android:data="furk-cmd://logout"
+            />
+    </Preference>
 
 </PreferenceScreen>
