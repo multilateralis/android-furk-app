@@ -28,7 +28,6 @@ import com.loopj.android.http.RequestParams;
 import com.simple.furk.adapter.ActiveFilesAdapter;
 import com.simple.furk.adapter.FilesAdapter;
 import com.simple.furk.adapter.MyFilesAdapter;
-import com.simple.furk.adapter.SearchFilesAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +45,7 @@ public class Furk extends ActionBarActivity
      */
     private CharSequence mTitle;
     private boolean refreshing;
+    private boolean collapseSearch;
     private static Context context;
     public static Context getContext() {
         return context;
@@ -56,6 +56,9 @@ public class Furk extends ActionBarActivity
         super.onCreate(savedInstanceState);
         //Thread.setDefaultUncaughtExceptionHandler(new LogExceptionHandler(this.getBaseContext()));
         context = Furk.this;
+        refreshing = false;
+        collapseSearch = false;
+
         setContentView(R.layout.activity_furk);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -70,9 +73,9 @@ public class Furk extends ActionBarActivity
         if (scheme != null) {
              if (scheme.equals("magnet") || scheme.equals("http") || scheme.equals("https")) {
                 String torrent = getIntent().getDataString();
-                APIClient request = new APIClient(this);
+
                 RequestParams params = new RequestParams("url",torrent);
-                request.get("dl/add", params);
+                APIClient.get("dl/add", params,this);
                 Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
             }
         }
@@ -161,11 +164,10 @@ public class Furk extends ActionBarActivity
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.options_menu_main, menu);
+            getMenuInflater().inflate(R.menu.furk, menu);
             restoreActionBar();
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-                SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
                 SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
                 searchView.setOnQueryTextListener(this);
                 searchView.setIconifiedByDefault(false);
@@ -189,6 +191,13 @@ public class Furk extends ActionBarActivity
             else
             {
                 refreshButton.setActionView(null);
+            }
+
+            if(collapseSearch)
+            {
+                MenuItem search = menu.findItem(R.id.action_search);
+                search.collapseActionView();
+                collapseSearch = false;
             }
         }
         return super.onPrepareOptionsMenu(menu);
@@ -214,13 +223,12 @@ public class Furk extends ActionBarActivity
 
     @Override
     public boolean onQueryTextSubmit(String s) {
-        mTitle = getString(R.string.title_section4);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle(mTitle);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, new SearchFragment(s),"CURRENT")
-                .commit();
+
+        collapseSearch = true;
+        invalidateOptionsMenu();
+        Intent intent = new Intent(this,SearchActivity.class);
+        intent.putExtra("query",s);
+        startActivity(intent);
 
         return false;
     }
@@ -330,25 +338,9 @@ public class Furk extends ActionBarActivity
     }
 
 
-    public static abstract class FilesFragment extends ListFragment {
 
-        @Override
-        public void onListItemClick(ListView l, View v, int position, long id) {
 
-            try {
-                JSONObject jObj = ((FilesAdapter) l.getAdapter()).getJSONObject(position);
-                FileActivity.FILE = jObj;
-                Intent intent = new Intent(getActivity(),FileActivity.class);
-                startActivity(intent);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-    }
-
-    public static class MyFilesFragment extends FilesFragment {
+    public static class MyFilesFragment extends ListFragment {
 
         protected MyFilesAdapter adapter;
         @Override
@@ -406,34 +398,23 @@ public class Furk extends ActionBarActivity
             ((Furk) activity).onSectionAttached(1);
 
         }
-    }
-
-    public static class SearchFragment extends FilesFragment {
-        protected SearchFilesAdapter adapter;
-        private final String query;
-        public SearchFragment(String query)
-        {
-            this.query = query;
-        }
 
         @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        public void onListItemClick(ListView l, View v, int position, long id) {
 
-            setEmptyText("Fetching..");
-            adapter = new SearchFilesAdapter(getActivity());
-            setListAdapter(adapter);
-            adapter.Execute(query);
+            try {
+                JSONObject jObj = ((FilesAdapter) l.getAdapter()).getJSONObject(position);
+                FileActivity.FILE = jObj;
+                Intent intent = new Intent(getActivity(),FileActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
-
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((Furk) activity).onSectionAttached(4);
-        }
-
     }
+
+
 
     public static class ActiveFilesFragment extends ListFragment implements APIClient.APICallback {
 
@@ -441,8 +422,6 @@ public class Furk extends ActionBarActivity
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-
-            //setEmptyText("Fetching..");
             adapter = new ActiveFilesAdapter(getActivity());
             setListAdapter(adapter);
             adapter.Execute();
@@ -481,15 +460,15 @@ public class Furk extends ActionBarActivity
                 adb.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
-                        APIClient request = new APIClient(ActiveFilesFragment.this);
 
                         try {
                             RequestParams params = new RequestParams("info_hash",jObj.getString("info_hash"));
-                            request.get("dl/add", params);
+                            APIClient.get("dl/add", params,ActiveFilesFragment.this);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    } });
+                    }
+                });
 
 
                 adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

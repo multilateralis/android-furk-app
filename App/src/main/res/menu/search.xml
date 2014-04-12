@@ -1,0 +1,39 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.simple.furk.SearchActivity" >
+
+    <item
+        android:icon="@drawable/ic_action_sort_by_size"
+        android:title="@string/action_sort"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menuSortCached"
+                android:title="Sort by cached" />
+            <item
+                android:id="@+id/menuSortRelevance"
+                android:title="Sort by relevance" />
+            <item
+                android:id="@+id/menuSortSize"
+                android:title="Sort by size" />
+            <item
+                android:id="@+id/menuSortSizeAsc"
+                android:title="Sort by size ascendant" />
+            <item
+                android:id="@+id/menuSortDate"
+                android:title="Sort by size date" />
+            <item
+                android:id="@+id/menuSortDateAsc"
+                android:title="Sort by size date ascendant" />
+        </menu>
+    </item>
+
+    <item android:id="@+id/action_search"
+        android:title="@string/action_search"
+        android:icon="@drawable/abc_ic_search"
+        app:queryHint="Seach Furk.net"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="android.widget.SearchView"
+        />
+</menu>

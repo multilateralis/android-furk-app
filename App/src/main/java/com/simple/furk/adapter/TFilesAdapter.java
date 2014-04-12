@@ -31,11 +31,10 @@ public class TFilesAdapter extends FilesAdapter {
     public void Execute(Object... args)
     {
         jArrayChain.clear();
-        APIClient apiClient = new APIClient(this);
         RequestParams params = new RequestParams();
         params.add("id", (String) args[0]);
         params.add("t_files", "1");
-        apiClient.get("file/get", params);
+        APIClient.get("file/get", params,this);
     }
 
 

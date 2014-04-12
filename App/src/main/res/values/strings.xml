@@ -21,6 +21,8 @@
     <string name="context_copy_name">Copy name</string>
     <string name="context_link_address">Copy link address</string>
     <string name="context_search_google">Search in Google</string>
-
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="action_sort">Sort</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

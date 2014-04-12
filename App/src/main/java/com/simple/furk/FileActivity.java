@@ -51,7 +51,7 @@ public class FileActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu_file, menu);
+        inflater.inflate(R.menu.file, menu);
 
         return true;
     }
@@ -72,12 +72,10 @@ public class FileActivity extends ActionBarActivity {
 //        }
         if(item.getItemId() == android.R.id.home)
         {
-            Intent intent = new Intent(this, Furk.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+            finish();
             return true;
         }
-        else if(item.getItemId() == R.id.action_download)
+        if(item.getItemId() == R.id.action_download)
         {
             downloadFile();
             return true;

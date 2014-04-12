@@ -5,52 +5,9 @@
     android:layout_height="match_parent"
     android:background="#ebebeb">
 
-    <HorizontalScrollView
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.5"
-        android:id="@+id/horizontalScrollView"
-        android:layout_gravity="center_horizontal" >
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:baselineAligned="false">
-
-        <ImageView
-            android:layout_height="fill_parent"
-            android:id="@+id/imageView"
-            android:src="@drawable/tn_1"
-            android:contentDescription="Tumbail"
-            android:layout_width="600dp"
-            android:layout_weight="1" />
-        <ImageView
-            android:layout_height="fill_parent"
-            android:id="@+id/imageView2"
-            android:src="@drawable/tn_1"
-            android:contentDescription="Tumbail"
-            android:layout_width="600dp"
-            android:layout_weight="1" />
-        <ImageView
-            android:layout_height="fill_parent"
-            android:id="@+id/imageView3"
-            android:src="@drawable/tn_1"
-            android:contentDescription="Tumbail"
-            android:layout_width="600dp"
-            android:layout_weight="1" />
-        </LinearLayout>
-        </HorizontalScrollView>
-
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:background="@android:color/darker_gray"/>
-    <ListView
-        android:id="@+id/innerFilesList"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2">
-
-    </ListView>
+        android:layout_height="match_parent" >
+    </FrameLayout>
 </LinearLayout>

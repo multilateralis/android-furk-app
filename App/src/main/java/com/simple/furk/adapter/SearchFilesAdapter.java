@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.loopj.android.http.RequestParams;
 import com.simple.furk.APIClient;
 import com.simple.furk.R;
+import com.simple.furk.SearchActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,34 +21,46 @@ public class SearchFilesAdapter extends FilesAdapter {
 
     private int loaderPos;
     private String query;
+    private final SearchActivity.SearchFragment searchFragment;
 //    private DisplayImageOptions options;
 //    private ImageLoader imageLoader;
 
 
-    public SearchFilesAdapter(Context context) {
+    public SearchFilesAdapter(Context context,SearchActivity.SearchFragment searchFragment) {
         super(context);
-        loaderPos = 0;
+        this.loaderPos = 0;
+        this.searchFragment = searchFragment;
     }
 
     public void Execute(Object... args)
     {
+        searchFragment.setListShown(false);
         jArrayChain.clear();
         query = (String)args[0];
-        APIClient apiClient = new APIClient(this);
-        RequestParams params = new RequestParams();
-        params.add("q",query);
-        apiClient.get("plugins/metasearch", params);
+        RequestParams params = new RequestParams("q",query);
+        APIClient.get("plugins/metasearch", params,this);
     }
 
 
     public void processAPIResponse(JSONObject response){
         JSONArray jArray = null;
+        String message = "Error";
         try {
-            jArray = response.getJSONArray("files");
-            jArrayChain.addJSONArray(jArray);
-            notifyDataSetChanged();
+            String totalFound = response.getJSONObject("stats").getString("total_found");
+            if(Integer.parseInt(totalFound) > 0) {
+                jArray = response.getJSONArray("files");
+                jArrayChain.addJSONArray(jArray);
+            }
+            else{
+                message = "No Matches Found";
+            }
         } catch (Exception e) {
-            Toast.makeText(context, "Invalid server response", Toast.LENGTH_LONG);
+            message = "Invalid server response";
+        }
+        finally {
+            searchFragment.setEmptyText(message);
+            searchFragment.setListShown(true);
+            notifyDataSetChanged();
         }
     }
 
@@ -80,12 +93,10 @@ public class SearchFilesAdapter extends FilesAdapter {
 
     private void getMoreFiles()
     {
-        APIClient apiClient;
-        apiClient = new APIClient(this);
         RequestParams params = new RequestParams();
         params.add("q",query);
         params.add("offset", String.valueOf(jArrayChain.length()));
-        apiClient.get("plugins/metasearch", params);
+        APIClient.get("plugins/metasearch", params,this);
     }
 
     @Override

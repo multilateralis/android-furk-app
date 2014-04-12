@@ -32,8 +32,7 @@ public class ActiveFilesAdapter extends FilesAdapter {
     @Override
     public void Execute(Object... args) {
         jArrayChain.clear();
-        APIClient apiClient = new APIClient(this);
-        apiClient.get("dl/get");
+        APIClient.get("dl/get",this);
         ((Furk)context).setRefreshing();
     }
 

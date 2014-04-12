@@ -41,8 +41,8 @@ public class MyFilesAdapter extends FilesAdapter {
                 jArrayChain.clear();
             }
         firstLoad = true;
-        APIClient apiClient = new APIClient(this);
-        apiClient.get("file/get");
+
+        APIClient.get("file/get",this);
         ((Furk)context).setRefreshing();
     }
 
@@ -112,10 +112,9 @@ public class MyFilesAdapter extends FilesAdapter {
 
     private void getMoreFiles()
     {
-        APIClient apiClient = new APIClient(this);
         RequestParams params = new RequestParams();
         params.add("offset", String.valueOf(jArrayChain.length()));
-        apiClient.get("file/get", params);
+        APIClient.get("file/get", params,this);
     }
 
 
