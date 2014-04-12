@@ -24,6 +24,7 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
+import com.loopj.android.http.RequestParams;
 import com.simple.furk.adapter.ActiveFilesAdapter;
 import com.simple.furk.adapter.FilesAdapter;
 import com.simple.furk.adapter.MyFilesAdapter;
@@ -70,7 +71,8 @@ public class Furk extends ActionBarActivity
              if (scheme.equals("magnet") || scheme.equals("http") || scheme.equals("https")) {
                 String torrent = getIntent().getDataString();
                 APIClient request = new APIClient(this);
-                request.execute("dl/add", "url=" + torrent);
+                RequestParams params = new RequestParams("url",torrent);
+                request.get("dl/add", params);
                 Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
             }
         }
@@ -229,16 +231,16 @@ public class Furk extends ActionBarActivity
     }
 
     @Override
-    public void processAPIResponse(JSONObject result) {
+    public void processAPIResponse(JSONObject response) {
 
         try {
-            if(result.getString("status").equals("ok"))
+            if(response.getString("status").equals("ok"))
             {
                 Toast.makeText(getApplicationContext(),"Torrent added",Toast.LENGTH_LONG).show();
 
-                if(result.has("files"))
+                if(response.has("files"))
                 {
-                    JSONArray files = result.getJSONArray("files");
+                    JSONArray files = response.getJSONArray("files");
                     if(files.length() > 0)
                     {
                         FileActivity.FILE = files.getJSONObject(0);
@@ -265,6 +267,11 @@ public class Furk extends ActionBarActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void processAPIError(Throwable e, JSONObject errorResponse) {
+
     }
 
     /**
@@ -475,8 +482,10 @@ public class Furk extends ActionBarActivity
                     public void onClick(DialogInterface dialog, int which) {
 
                         APIClient request = new APIClient(ActiveFilesFragment.this);
+
                         try {
-                            request.execute("dl/add","info_hash="+ jObj.getString("info_hash"));
+                            RequestParams params = new RequestParams("info_hash",jObj.getString("info_hash"));
+                            request.get("dl/add", params);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -500,9 +509,14 @@ public class Furk extends ActionBarActivity
         }
 
         @Override
-        public void processAPIResponse(JSONObject result) {
+        public void processAPIResponse(JSONObject response) {
             Toast.makeText(getActivity(),"File added",Toast.LENGTH_LONG).show();
             this.refresh();
+        }
+
+        @Override
+        public void processAPIError(Throwable e, JSONObject errorResponse) {
+
         }
 
         @Override

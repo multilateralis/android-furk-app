@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.RequestParams;
 import com.simple.furk.APIClient;
 import com.simple.furk.R;
 
@@ -31,20 +32,27 @@ public class TFilesAdapter extends FilesAdapter {
     {
         jArrayChain.clear();
         APIClient apiClient = new APIClient(this);
-        apiClient.execute("file/get","id="+args[0],"t_files=1");
+        RequestParams params = new RequestParams();
+        params.add("id", (String) args[0]);
+        params.add("t_files", "1");
+        apiClient.get("file/get", params);
     }
 
 
-    public void processAPIResponse(JSONObject jObj) {
+    public void processAPIResponse(JSONObject response) {
 
-        JSONArray jArray = null;
         try {
-            jArray = jObj.getJSONArray("files").getJSONObject(0).getJSONArray("t_files");
+            JSONArray jArray = response.getJSONArray("files").getJSONObject(0).getJSONArray("t_files");
             jArrayChain.addJSONArray(jArray);
             notifyDataSetChanged();
         } catch (Exception e) {
             Toast.makeText(context, "Invalid server response",Toast.LENGTH_LONG).show();
         }
+
+    }
+
+    @Override
+    public void processAPIError(Throwable e, JSONObject errorResponse) {
 
     }
 

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.RequestParams;
 import com.simple.furk.APIClient;
 import com.simple.furk.R;
 
@@ -25,7 +26,6 @@ public class SearchFilesAdapter extends FilesAdapter {
 
     public SearchFilesAdapter(Context context) {
         super(context);
-
         loaderPos = 0;
     }
 
@@ -34,19 +34,26 @@ public class SearchFilesAdapter extends FilesAdapter {
         jArrayChain.clear();
         query = (String)args[0];
         APIClient apiClient = new APIClient(this);
-        apiClient.execute("plugins/metasearch","q="+query);
+        RequestParams params = new RequestParams();
+        params.add("q",query);
+        apiClient.get("plugins/metasearch", params);
     }
 
 
-    public void processAPIResponse(JSONObject jObj){
+    public void processAPIResponse(JSONObject response){
         JSONArray jArray = null;
         try {
-            jArray = jObj.getJSONArray("files");
+            jArray = response.getJSONArray("files");
             jArrayChain.addJSONArray(jArray);
             notifyDataSetChanged();
         } catch (Exception e) {
             Toast.makeText(context, "Invalid server response", Toast.LENGTH_LONG);
         }
+    }
+
+    @Override
+    public void processAPIError(Throwable e, JSONObject errorResponse) {
+
     }
 
 
@@ -75,7 +82,10 @@ public class SearchFilesAdapter extends FilesAdapter {
     {
         APIClient apiClient;
         apiClient = new APIClient(this);
-        apiClient.execute("plugins/metasearch","q="+query,"offset="+jArrayChain.length());
+        RequestParams params = new RequestParams();
+        params.add("q",query);
+        params.add("offset", String.valueOf(jArrayChain.length()));
+        apiClient.get("plugins/metasearch", params);
     }
 
     @Override

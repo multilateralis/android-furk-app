@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.RequestParams;
 import com.simple.furk.APIClient;
 import com.simple.furk.Furk;
 import com.simple.furk.R;
@@ -41,7 +42,7 @@ public class MyFilesAdapter extends FilesAdapter {
             }
         firstLoad = true;
         APIClient apiClient = new APIClient(this);
-        apiClient.execute("file/get");
+        apiClient.get("file/get");
         ((Furk)context).setRefreshing();
     }
 
@@ -56,19 +57,19 @@ public class MyFilesAdapter extends FilesAdapter {
         }
     }
 
-    public void processAPIResponse(JSONObject jObj){
+    public void processAPIResponse(JSONObject response){
         JSONArray jArray = null;
-        if(jObj != null) {
             try {
-                jArray = jObj.getJSONArray("files");
+                jArray = response.getJSONArray("files");
                 if (firstLoad) {
                     jArrayChain.clear();
                     firstLoad = false;
                 }
                 jArrayChain.addJSONArray(jArray);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 try {
-                    if(jObj.getString("error").equals("access denied"))
+                    if(response.getString("error").equals("access denied"))
                         Toast.makeText(context, "Access denied. Please check api key in settings", Toast.LENGTH_LONG).show();
                     else
                         Toast.makeText(context, "Invalid server response", Toast.LENGTH_LONG).show();
@@ -81,8 +82,11 @@ public class MyFilesAdapter extends FilesAdapter {
                 ((Furk) context).doneRefrshing();
             }
         }
-    }
 
+    @Override
+    public void processAPIError(Throwable e, JSONObject errorResponse) {
+        ((Furk) context).doneRefrshing();
+    }
 
 
     @Override
@@ -109,7 +113,9 @@ public class MyFilesAdapter extends FilesAdapter {
     private void getMoreFiles()
     {
         APIClient apiClient = new APIClient(this);
-        apiClient.execute("file/get","offset="+jArrayChain.length());
+        RequestParams params = new RequestParams();
+        params.add("offset", String.valueOf(jArrayChain.length()));
+        apiClient.get("file/get", params);
     }
 
 

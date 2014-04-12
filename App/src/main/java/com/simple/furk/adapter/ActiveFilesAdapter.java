@@ -33,7 +33,7 @@ public class ActiveFilesAdapter extends FilesAdapter {
     public void Execute(Object... args) {
         jArrayChain.clear();
         APIClient apiClient = new APIClient(this);
-        apiClient.execute("dl/get");
+        apiClient.get("dl/get");
         ((Furk)context).setRefreshing();
     }
 
@@ -43,13 +43,13 @@ public class ActiveFilesAdapter extends FilesAdapter {
     }
 
     @Override
-    public void processAPIResponse(JSONObject jObj){
+    public void processAPIResponse(JSONObject response){
         JSONArray jArray = null;
         active = new JSONArray();
         JSONArray failed = new JSONArray();
         Boolean startedFailed = false;
         try {
-            jArray = jObj.getJSONArray("torrents");
+            jArray = response.getJSONArray("torrents");
             for(int i = 0; i < jArray.length();i++)
             {
                 JSONObject iObj = jArray.getJSONObject(i);
@@ -69,7 +69,7 @@ public class ActiveFilesAdapter extends FilesAdapter {
             }
         } catch (Exception e) {
             try {
-                if(jObj.getString("error").equals("access denied"))
+                if(response.getString("error").equals("access denied"))
                     Toast.makeText(context, "Access denied. Please check api key in settings", Toast.LENGTH_LONG).show();
                 else
                     Toast.makeText(context, "Invalid server response", Toast.LENGTH_LONG).show();
@@ -82,6 +82,11 @@ public class ActiveFilesAdapter extends FilesAdapter {
             ((Furk) context).doneRefrshing();
         }
 
+    }
+
+    @Override
+    public void processAPIError(Throwable e, JSONObject errorResponse) {
+        ((Furk) context).doneRefrshing();
     }
 
     @Override
