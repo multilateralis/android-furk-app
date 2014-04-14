@@ -35,7 +35,6 @@ public class MainActivity extends ActionBarActivity {
             startActivityForResult(intent,1);
         }
         else {
-            APIClient.setAPIKEY(apiKey);
             Intent intent = new Intent(this,Furk.class);
             intent.setData(getIntent().getData());
             startActivity(intent);
@@ -48,9 +47,6 @@ public class MainActivity extends ActionBarActivity {
     {
         if(requestCode == 1 && resultCode == 200)
         {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String apiKey = preferences.getString("api_key","");
-            APIClient.setAPIKEY(apiKey);
             Intent intent = new Intent(this,Furk.class);
             intent.setData(getIntent().getData());
             startActivity(intent);

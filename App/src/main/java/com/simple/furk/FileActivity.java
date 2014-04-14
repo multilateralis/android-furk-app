@@ -28,23 +28,28 @@ import org.json.JSONObject;
 public class FileActivity extends ActionBarActivity {
 
 
-    public static JSONObject FILE;
+    private static JSONObject file;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+        String fileString = getIntent().getStringExtra("file");
+        try {
+            file = new JSONObject(fileString);
+        } catch (JSONException e) {
+            finish();
+        }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar actionBar = getActionBar();
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getProperty("name"));
         }
-        if(FILE == null)
-            Log.d("Furk","File is null");
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, new TFilesFragment())
+                .add(R.id.container, new TFilesFragment())
                 .commit();
     }
 
@@ -109,7 +114,7 @@ public class FileActivity extends ActionBarActivity {
     private String getProperty(String property)
     {
         try {
-           return FILE.getString(property);
+           return file.getString(property);
         } catch (JSONException e) {
             Toast.makeText(getApplicationContext(),"Can't find property "+property,Toast.LENGTH_LONG);
             return null;
@@ -158,11 +163,12 @@ public class FileActivity extends ActionBarActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            adapter = new TFilesAdapter(getActivity());
+            adapter = new TFilesAdapter(getActivity(),TFilesFragment.this);
             setListAdapter(adapter);
+            registerForContextMenu(getListView());
             try {
-                adapter.Execute(FILE.getString("id"));
-                registerForContextMenu(getListView());
+                adapter.Execute(file.getString("id"));
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }

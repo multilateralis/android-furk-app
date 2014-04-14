@@ -2,6 +2,7 @@ package com.simple.furk.adapter;
 
 import android.content.Context;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +24,17 @@ import org.json.JSONObject;
 public class ActiveFilesAdapter extends FilesAdapter {
 
     private JSONArray active;
-    public ActiveFilesAdapter(Context context)
+    private final Furk.ActiveFilesFragment activeFilesFragment;
+    public ActiveFilesAdapter(Context context, Furk.ActiveFilesFragment activeFilesFragment)
     {
         super(context);
+        this.activeFilesFragment = activeFilesFragment;
         active = new JSONArray();
     }
 
     @Override
     public void Execute(Object... args) {
+        activeFilesFragment.setEmptyText("Loading..");
         jArrayChain.clear();
         APIClient.get("dl/get",this);
         ((Furk)context).setRefreshing();
@@ -47,6 +51,7 @@ public class ActiveFilesAdapter extends FilesAdapter {
         active = new JSONArray();
         JSONArray failed = new JSONArray();
         Boolean startedFailed = false;
+        String message = "No downloads";
         try {
             jArray = response.getJSONArray("torrents");
             for(int i = 0; i < jArray.length();i++)
@@ -67,16 +72,11 @@ public class ActiveFilesAdapter extends FilesAdapter {
                 jArrayChain.addJSONArray(failed);
             }
         } catch (Exception e) {
-            try {
-                if(response.getString("error").equals("access denied"))
-                    Toast.makeText(context, "Access denied. Please check api key in settings", Toast.LENGTH_LONG).show();
-                else
-                    Toast.makeText(context, "Invalid server response", Toast.LENGTH_LONG).show();
-            } catch (JSONException e1) {
-                Toast.makeText(context, "Invalid server response", Toast.LENGTH_LONG).show();
-            }
+                jArrayChain.clear();
+                message = "Invalid server response. "+ e.getMessage();
         }
         finally {
+            activeFilesFragment.setEmptyText(message);
             notifyDataSetChanged();
             ((Furk) context).doneRefrshing();
         }
@@ -84,8 +84,17 @@ public class ActiveFilesAdapter extends FilesAdapter {
     }
 
     @Override
-    public void processAPIError(Throwable e, JSONObject errorResponse) {
-        ((Furk) context).doneRefrshing();
+    public void processAPIError(Throwable e) {
+        try {
+            activeFilesFragment.setEmptyText(e.getMessage());
+            jArrayChain.clear();
+            notifyDataSetChanged();
+            ((Furk) context).doneRefrshing();
+        }
+        catch (IllegalStateException e1)
+        {
+            Log.d("furk", "fragment disposed before async api request finished");
+        }
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.simple.furk;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -14,17 +13,13 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
-
-import com.loopj.android.http.RequestParams;
 import com.simple.furk.adapter.ActiveFilesAdapter;
 import com.simple.furk.adapter.FilesAdapter;
 import com.simple.furk.adapter.MyFilesAdapter;
@@ -32,6 +27,8 @@ import com.simple.furk.adapter.MyFilesAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 public class Furk extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,OnQueryTextListener,APIClient.APICallback {
@@ -46,16 +43,11 @@ public class Furk extends ActionBarActivity
     private CharSequence mTitle;
     private boolean refreshing;
     private boolean collapseSearch;
-    private static Context context;
-    public static Context getContext() {
-        return context;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Thread.setDefaultUncaughtExceptionHandler(new LogExceptionHandler(this.getBaseContext()));
-        context = Furk.this;
+
         refreshing = false;
         collapseSearch = false;
 
@@ -74,7 +66,8 @@ public class Furk extends ActionBarActivity
              if (scheme.equals("magnet") || scheme.equals("http") || scheme.equals("https")) {
                 String torrent = getIntent().getDataString();
 
-                RequestParams params = new RequestParams("url",torrent);
+                HashMap<String,String> params = new HashMap<String,String>();
+                params.put("url",torrent);
                 APIClient.get("dl/add", params,this);
                 Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
             }
@@ -251,8 +244,8 @@ public class Furk extends ActionBarActivity
                     JSONArray files = response.getJSONArray("files");
                     if(files.length() > 0)
                     {
-                        FileActivity.FILE = files.getJSONObject(0);
                         Intent intent = new Intent(this,FileActivity.class);
+                        intent.putExtra("file",files.getJSONObject(0).toString());
                         startActivity(intent);
                     }
                     else
@@ -273,71 +266,15 @@ public class Furk extends ActionBarActivity
 
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            Toast.makeText(getApplicationContext(),"Error downloading",Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
-    public void processAPIError(Throwable e, JSONObject errorResponse) {
+    public void processAPIError(Throwable e) {
+        Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
 
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = null;
-            switch (getArguments().getInt(ARG_SECTION_NUMBER)){
-                case 1:
-                    rootView = inflater.inflate(R.layout.fragment_files, container, false);
-                    break;
-                case 2:
-                    rootView = inflater.inflate(R.layout.fragment_active_downloads, container, false);
-                    break;
-/*                case 3:
-                    rootView = inflater.inflate(R.layout.fragment_settings, container, false);
-                    break;*/
-            }
-            //View rootView = inflater.inflate(R.layout.fragment_file_list, container, false);
-            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            //textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((Furk) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
-    }
-
-
 
 
     public static class MyFilesFragment extends ListFragment {
@@ -346,7 +283,7 @@ public class Furk extends ActionBarActivity
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            adapter = new MyFilesAdapter(getActivity());
+            adapter = new MyFilesAdapter(getActivity(),this);
             setListAdapter(adapter);
             adapter.Execute();
 
@@ -363,34 +300,7 @@ public class Furk extends ActionBarActivity
             super.onStop();
             adapter.saveMyFiles();
         }
-//
-//        @Override
-//        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-//            super.onCreateContextMenu(menu, v, menuInfo);
-//
-//            MenuInflater inflater = getMenuInflater();
-//            inflater.inflate(R.menu.context_my_files, menu);
-//        }
-//
-//        @Override
-//        public boolean onContextItemSelected(MenuItem item) {
-//            try {
-//                JSONObject jObj = adapter.getJSONObject(getListView().getSelectedItemPosition());
-//                String url = jObj.getString("url_dl");
-//
-//                if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-//                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                    clipboard.setText(url);
-//                } else {
-//                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", url);
-//                    clipboard.setPrimaryClip(clip);
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return super.onContextItemSelected(item);
-//        }
+
 
         @Override
         public void onAttach(Activity activity) {
@@ -404,8 +314,8 @@ public class Furk extends ActionBarActivity
 
             try {
                 JSONObject jObj = ((FilesAdapter) l.getAdapter()).getJSONObject(position);
-                FileActivity.FILE = jObj;
                 Intent intent = new Intent(getActivity(),FileActivity.class);
+                intent.putExtra("file",jObj.toString());
                 startActivity(intent);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -422,7 +332,7 @@ public class Furk extends ActionBarActivity
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            adapter = new ActiveFilesAdapter(getActivity());
+            adapter = new ActiveFilesAdapter(getActivity(), this);
             setListAdapter(adapter);
             adapter.Execute();
         }
@@ -457,25 +367,28 @@ public class Furk extends ActionBarActivity
                 String name = jObj.getString("name");
                 adb.setMessage("Do you want to retry the download " + name +"?");
                 adb.setIcon(android.R.drawable.ic_dialog_alert);
-                adb.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                adb
+                        .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
 
                         try {
-                            RequestParams params = new RequestParams("info_hash",jObj.getString("info_hash"));
-                            APIClient.get("dl/add", params,ActiveFilesFragment.this);
+                            HashMap<String, String> params = new HashMap<String, String>();
+                            params.put("info_hash", jObj.getString("info_hash"));
+                            APIClient.get("dl/add", params, ActiveFilesFragment.this);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
-                });
-
-
-                adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
                         dialog.cancel();
-                    } });
+                    }
+                });
+
+
                 adb.show();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -494,7 +407,7 @@ public class Furk extends ActionBarActivity
         }
 
         @Override
-        public void processAPIError(Throwable e, JSONObject errorResponse) {
+        public void processAPIError(Throwable e) {
 
         }
 

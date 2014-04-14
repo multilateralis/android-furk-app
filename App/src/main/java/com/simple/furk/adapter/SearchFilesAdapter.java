@@ -6,9 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.loopj.android.http.RequestParams;
 import com.simple.furk.APIClient;
 import com.simple.furk.R;
 import com.simple.furk.SearchActivity;
@@ -17,10 +15,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 public class SearchFilesAdapter extends FilesAdapter {
 
     private int loaderPos;
-    private String query;
+    private String searchQuery;
+    private String sortQuery;
     private final SearchActivity.SearchFragment searchFragment;
 //    private DisplayImageOptions options;
 //    private ImageLoader imageLoader;
@@ -30,20 +31,26 @@ public class SearchFilesAdapter extends FilesAdapter {
         super(context);
         this.loaderPos = 0;
         this.searchFragment = searchFragment;
+        this.searchQuery = "";
+        this.sortQuery = "cached";
     }
 
     public void Execute(Object... args)
     {
         searchFragment.setListShown(false);
         jArrayChain.clear();
-        query = (String)args[0];
-        RequestParams params = new RequestParams("q",query);
+        searchQuery = (String)args[0];
+        sortQuery = (String)args[1];
+        HashMap<String,String> params = new HashMap<String,String>();
+        params.put("q", searchQuery);
+        params.put("sort",sortQuery);
         APIClient.get("plugins/metasearch", params,this);
     }
 
 
     public void processAPIResponse(JSONObject response){
         JSONArray jArray = null;
+        searchFragment.setEmptyText("");
         String message = "Error";
         try {
             String totalFound = response.getJSONObject("stats").getString("total_found");
@@ -55,7 +62,7 @@ public class SearchFilesAdapter extends FilesAdapter {
                 message = "No Matches Found";
             }
         } catch (Exception e) {
-            message = "Invalid server response";
+            message = "Invalid server response. " + e.getMessage();
         }
         finally {
             searchFragment.setEmptyText(message);
@@ -65,8 +72,19 @@ public class SearchFilesAdapter extends FilesAdapter {
     }
 
     @Override
-    public void processAPIError(Throwable e, JSONObject errorResponse) {
+    public void processAPIError(Throwable e) {
 
+        try
+        {
+        searchFragment.setEmptyText(e.getMessage());
+        searchFragment.setListShown(true);
+        jArrayChain.clear();
+        notifyDataSetChanged();
+        }
+        catch (IllegalStateException e1)
+        {
+
+        }
     }
 
 
@@ -93,9 +111,10 @@ public class SearchFilesAdapter extends FilesAdapter {
 
     private void getMoreFiles()
     {
-        RequestParams params = new RequestParams();
-        params.add("q",query);
-        params.add("offset", String.valueOf(jArrayChain.length()));
+        HashMap<String,String> params = new HashMap<String,String>();
+        params.put("q", searchQuery);
+        params.put("sort",sortQuery);
+        params.put("offset", String.valueOf(jArrayChain.length()));
         APIClient.get("plugins/metasearch", params,this);
     }
 

@@ -24,5 +24,11 @@
     <string name="title_activity_search">SearchActivity</string>
     <string name="action_sort">Sort</string>
     <string name="hello_world">Hello world!</string>
+    <string name="sort_cached">Sort by cached</string>
+    <string name="sort_relevance">Sort by relevance</string>
+    <string name="sort_size">Sort by size</string>
+    <string name="sort_size_asc">Sort by size ascendant</string>
+    <string name="sort_date">Sort by date</string>
+    <string name="sort_date_asc">Sort by date ascendant</string>
 
 </resources>

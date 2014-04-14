@@ -7,25 +7,28 @@
         android:icon="@drawable/ic_action_sort_by_size"
         android:title="@string/action_sort"
         app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/menuSortCached"
-                android:title="Sort by cached" />
-            <item
-                android:id="@+id/menuSortRelevance"
-                android:title="Sort by relevance" />
-            <item
-                android:id="@+id/menuSortSize"
-                android:title="Sort by size" />
-            <item
-                android:id="@+id/menuSortSizeAsc"
-                android:title="Sort by size ascendant" />
-            <item
-                android:id="@+id/menuSortDate"
-                android:title="Sort by size date" />
-            <item
-                android:id="@+id/menuSortDateAsc"
-                android:title="Sort by size date ascendant" />
+        <menu xmlns:android="http://schemas.android.com/apk/res/android">
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menuSortCached"
+                    android:title="@string/sort_cached"
+                    android:checked="true"/>
+                <item
+                    android:id="@+id/menuSortRelevance"
+                    android:title="@string/sort_relevance" />
+                <item
+                    android:id="@+id/menuSortSize"
+                    android:title="@string/sort_size" />
+                <item
+                    android:id="@+id/menuSortSizeAsc"
+                    android:title="@string/sort_size_asc" />
+                <item
+                    android:id="@+id/menuSortDate"
+                    android:title="@string/sort_date" />
+                <item
+                    android:id="@+id/menuSortDateAsc"
+                    android:title="@string/sort_date_asc" />
+            </group>
         </menu>
     </item>
 

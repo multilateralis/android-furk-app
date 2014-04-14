@@ -9,13 +9,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.loopj.android.http.RequestParams;
 import com.simple.furk.APIClient;
+import com.simple.furk.FileActivity;
 import com.simple.furk.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 /**
  * Created by Nicolas on 12/10/13.
@@ -23,17 +25,21 @@ import org.json.JSONObject;
 public class TFilesAdapter extends FilesAdapter {
 
 
+    private FileActivity.TFilesFragment tFilesFragment;
 
-    public TFilesAdapter(Context context) {
+    public TFilesAdapter(Context context, FileActivity.TFilesFragment tFilesFragment) {
         super(context);
+        this.tFilesFragment = tFilesFragment;
     }
 
     public void Execute(Object... args)
     {
+        tFilesFragment.setEmptyText("");
+        tFilesFragment.setListShown(false);
         jArrayChain.clear();
-        RequestParams params = new RequestParams();
-        params.add("id", (String) args[0]);
-        params.add("t_files", "1");
+        HashMap<String,String> params = new HashMap<String,String>();
+        params.put("id", (String) args[0]);
+        params.put("t_files", "1");
         APIClient.get("file/get", params,this);
     }
 
@@ -43,16 +49,22 @@ public class TFilesAdapter extends FilesAdapter {
         try {
             JSONArray jArray = response.getJSONArray("files").getJSONObject(0).getJSONArray("t_files");
             jArrayChain.addJSONArray(jArray);
-            notifyDataSetChanged();
         } catch (Exception e) {
             Toast.makeText(context, "Invalid server response",Toast.LENGTH_LONG).show();
+        }
+        finally {
+            tFilesFragment.setListShown(true);
+            notifyDataSetChanged();
         }
 
     }
 
     @Override
-    public void processAPIError(Throwable e, JSONObject errorResponse) {
-
+    public void processAPIError(Throwable e) {
+        jArrayChain.clear();
+        tFilesFragment.setEmptyText(e.getMessage());
+        tFilesFragment.setListShown(true);
+        notifyDataSetChanged();
     }
 
 
