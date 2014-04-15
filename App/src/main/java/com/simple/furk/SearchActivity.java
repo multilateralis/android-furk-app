@@ -2,11 +2,10 @@ package com.simple.furk;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.Build;
-import android.support.v4.app.ListFragment;
 import android.content.Intent;
+import android.app.ActionBar;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
+import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,14 +21,12 @@ import com.simple.furk.adapter.SearchFilesAdapter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URLDecoder;
 import java.util.HashMap;
 
 
 public class SearchActivity extends ActionBarActivity implements SearchView.OnQueryTextListener {
 
     private String searchQuery;
-    private String sortQuery;
     private SearchFragment searchFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +34,12 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
         setContentView(R.layout.activity_search);
 
         searchQuery = getIntent().getExtras().getString("query");
-        sortQuery  = "cached";
-        searchFragment = new SearchFragment(searchQuery,sortQuery);
+        String sortQuery = "cached";
+        searchFragment = new SearchFragment(searchQuery, sortQuery);
 
 
         String title = getString(R.string.title_section4);
-        ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.setTitle(title);
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -57,19 +54,16 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.search, menu);
 
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        MenuItem searchMenuItem = menu.findItem( R.id.action_search); // get my MenuItem with placeholder submenu
+        searchMenuItem.expandActionView();
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setQuery(searchQuery,false);
+        searchView.clearFocus();
+        searchView.setOnQueryTextListener(this);
+        searchView.setIconifiedByDefault(false);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            MenuItem searchMenuItem = menu.findItem( R.id.action_search); // get my MenuItem with placeholder submenu
-            searchMenuItem.expandActionView();
-            SearchView searchView = (SearchView) searchMenuItem.getActionView();
-            searchView.setQuery(searchQuery,false);
-            searchView.clearFocus();
-            searchView.setOnQueryTextListener(this);
-            searchView.setIconifiedByDefault(false);
-        }
         return true;
     }
 
@@ -145,7 +139,7 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
             super.onActivityCreated(savedInstanceState);
 
             setListShown(false);
-            adapter = new SearchFilesAdapter(getActivity(),this);
+            adapter = new SearchFilesAdapter(this);
             setListAdapter(adapter);
             adapter.Execute(searchQuery,sortQuery);
         }
@@ -185,7 +179,7 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
                                 try {
                                     HashMap<String, String> params = new HashMap<String, String>();
                                     params.put("info_hash", jObj.getString("info_hash"));
-                                    APIClient.get("dl/add", params, SearchFragment.this);
+                                    APIClient.get(getActivity().getApplicationContext(),"dl/add", params, SearchFragment.this);
                                 } catch (JSONException e) {
                                     Toast.makeText(getActivity(),"Failed to add file. " + e.getMessage() ,Toast.LENGTH_LONG).show();
                                 }

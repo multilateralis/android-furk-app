@@ -2,13 +2,10 @@ package com.simple.furk;
 
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.text.Html;
-import android.widget.Toast;
 
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.koushikdutta.async.future.FutureCallback;
@@ -17,7 +14,7 @@ import com.koushikdutta.ion.Ion;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Iterator;
+
 
 
 public class APIClient {
@@ -27,54 +24,46 @@ public class APIClient {
     //private static AsyncHttpClient client = new AsyncHttpClient();
 
 
-    public static void get(String url, HashMap<String,String> params, APICallback callback) {
-        checkAPIKey();
+    public static void get(Context context,String url, HashMap<String,String> params, APICallback callback) {
+        checkAPIKey(context);
         APIResponseHandler handler = new APIResponseHandler(callback);
-        Ion.with(FurkApplication.getAppContext(),getAbsoluteUrl(url,params))
+        Ion.with(context,getAbsoluteUrl(url,params))
                 .asString()
                 .setCallback(handler);
     }
 
-    public static void get(String url,APICallback callback) {
-        checkAPIKey();
+    public static void get(Context context, String url,APICallback callback) {
+        checkAPIKey(context);
         APIResponseHandler handler = new APIResponseHandler(callback);
-        Ion.with(FurkApplication.getAppContext(),getAbsoluteUrl(url))
+        Ion.with(context,getAbsoluteUrl(url))
                 .asString()
                 .setCallback(handler);
     }
 
-    public void post(String url, HashMap<String,String> params, APICallback callback) {
-        checkAPIKey();
+    public void post(Context context, String url, HashMap<String,String> params, APICallback callback) {
+        checkAPIKey(context);
     }
 
-    private static void checkAPIKey()
+    private static void checkAPIKey(Context context)
     {
         if(API_KEY.isEmpty()) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(FurkApplication.getAppContext());
-            String apiKey = preferences.getString("api_key", "");
-            API_KEY = apiKey;
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            API_KEY = preferences.getString("api_key", "");
         }
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {
 
-        StringBuilder sb = new StringBuilder(BASE_URL);
-        sb.append(relativeUrl);
-        sb.append("?api_key=" + API_KEY);
-
-        return sb.toString();
+        return BASE_URL + relativeUrl + "?api_key=" + API_KEY;
     }
     private static String getAbsoluteUrl(String relativeUrl,HashMap<String,String> params)  {
 
         StringBuilder sb = new StringBuilder(BASE_URL);
         sb.append(relativeUrl);
-        sb.append("?api_key=" + API_KEY);
-        Iterator<String> itr = params.keySet().iterator();
-        while (itr.hasNext())
-        {
-            String key = itr.next();
+        sb.append("?api_key=").append(API_KEY);
+        for (String key : params.keySet()) {
             try {
-                sb.append("&" + key + "=" + URLEncoder.encode(params.get(key), "UTF-8"));
+                sb.append("&").append(key).append("=").append(URLEncoder.encode(params.get(key), "UTF-8"));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

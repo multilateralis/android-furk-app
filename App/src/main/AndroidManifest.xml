@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.simple.furk"
-    android:versionCode="2"
-    android:versionName="0.2" >
+    android:versionCode="3"
+    android:versionName="0.3" >
 
     <uses-sdk
         android:minSdkVersion="11"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:name=".FurkApplication"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.simple.furk.MainActivity"
@@ -72,7 +71,8 @@
         <activity
             android:name="com.simple.furk.SearchActivity"
             android:label="@string/title_activity_search"
-            android:parentActivityName="com.simple.furk.Furk">
+            android:parentActivityName="com.simple.furk.Furk"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -83,9 +83,5 @@
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
 </manifest>

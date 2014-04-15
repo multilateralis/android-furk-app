@@ -2,6 +2,7 @@ package com.simple.furk.adapter;
 
 import android.content.Context;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,8 @@ public class TFilesAdapter extends FilesAdapter {
 
     private FileActivity.TFilesFragment tFilesFragment;
 
-    public TFilesAdapter(Context context, FileActivity.TFilesFragment tFilesFragment) {
-        super(context);
+    public TFilesAdapter(FileActivity.TFilesFragment tFilesFragment) {
+        super(tFilesFragment.getActivity());
         this.tFilesFragment = tFilesFragment;
     }
 
@@ -40,7 +41,7 @@ public class TFilesAdapter extends FilesAdapter {
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("id", (String) args[0]);
         params.put("t_files", "1");
-        APIClient.get("file/get", params,this);
+        APIClient.get(tFilesFragment.getActivity(),"file/get", params,this);
     }
 
 
@@ -61,10 +62,19 @@ public class TFilesAdapter extends FilesAdapter {
 
     @Override
     public void processAPIError(Throwable e) {
-        jArrayChain.clear();
-        tFilesFragment.setEmptyText(e.getMessage());
-        tFilesFragment.setListShown(true);
-        notifyDataSetChanged();
+        try {
+            tFilesFragment.setEmptyText(e.getMessage());
+            tFilesFragment.setListShown(true);
+        }
+        catch (IllegalStateException e1)
+        {
+            Log.d("furk","fragment disposed before async api request finished");
+        }
+        finally {
+            jArrayChain.clear();
+            notifyDataSetChanged();
+        }
+
     }
 
 
@@ -113,7 +123,7 @@ public class TFilesAdapter extends FilesAdapter {
 
         TextView title = (TextView) rowView.findViewById(R.id.listview_title);
         TextView description = (TextView) rowView.findViewById(R.id.listview_description);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+
         try
         {
             JSONObject jsonObj =  jArrayChain.getJSONObject(position);

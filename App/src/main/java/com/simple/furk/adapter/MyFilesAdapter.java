@@ -28,8 +28,8 @@ public class MyFilesAdapter extends FilesAdapter {
     private Boolean firstLoad;
     private final Furk.MyFilesFragment myFilesFragment;
 
-    public MyFilesAdapter(Context context, Furk.MyFilesFragment myFilesFragment) {
-        super(context);
+    public MyFilesAdapter(Furk.MyFilesFragment myFilesFragment) {
+        super(myFilesFragment.getActivity());
         this.myFilesFragment = myFilesFragment;
         mPrefs = context.getSharedPreferences("furk_cache",0);
         loaderPos = 0;
@@ -47,7 +47,7 @@ public class MyFilesAdapter extends FilesAdapter {
             }
         firstLoad = true;
 
-        APIClient.get("file/get",this);
+        APIClient.get(myFilesFragment.getActivity(),"file/get",this);
         ((Furk)context).setRefreshing();
     }
 
@@ -63,10 +63,9 @@ public class MyFilesAdapter extends FilesAdapter {
     }
 
     public void processAPIResponse(JSONObject response){
-        JSONArray jArray = null;
         String message = "No files";
             try {
-                jArray = response.getJSONArray("files");
+                JSONArray jArray = response.getJSONArray("files");
                 if (firstLoad) {
                     jArrayChain.clear();
                     firstLoad = false;
@@ -90,13 +89,15 @@ public class MyFilesAdapter extends FilesAdapter {
         try
         {
             myFilesFragment.setEmptyText(e.getMessage());
-            jArrayChain.clear();
-            notifyDataSetChanged();
             ((Furk) context).doneRefrshing();
         }
         catch (IllegalStateException e1)
         {
             Log.d("furk","fragment disposed before async api request finished");
+        }
+        finally {
+            jArrayChain.clear();
+            notifyDataSetChanged();
         }
     }
 
@@ -126,7 +127,7 @@ public class MyFilesAdapter extends FilesAdapter {
     {
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("offset", String.valueOf(jArrayChain.length()));
-        APIClient.get("file/get", params,this);
+        APIClient.get(myFilesFragment.getActivity(),"file/get", params,this);
     }
 
 

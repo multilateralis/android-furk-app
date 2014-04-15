@@ -11,7 +11,7 @@
     <item android:id="@+id/action_search"
         android:title="@string/action_search"
         android:icon="@drawable/abc_ic_search"
-        app:queryHint="Seach Furk.net"
+        android:queryHint="Seach Furk.net"
         app:showAsAction="collapseActionView|ifRoom"
         app:actionViewClass="android.widget.SearchView"
         />

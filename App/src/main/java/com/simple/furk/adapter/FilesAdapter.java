@@ -27,7 +27,6 @@ public abstract class FilesAdapter extends BaseAdapter implements APIClient.APIC
 
     public abstract void Execute(Object... args);
 
-   // public abstract void processAPIResponse(JSONObject jObj) throws JSONException;
 
     public JSONObject getJSONObject(int index) throws JSONException {
         return jArrayChain.getJSONObject(index);

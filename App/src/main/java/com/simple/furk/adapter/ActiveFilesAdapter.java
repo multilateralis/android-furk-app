@@ -25,9 +25,9 @@ public class ActiveFilesAdapter extends FilesAdapter {
 
     private JSONArray active;
     private final Furk.ActiveFilesFragment activeFilesFragment;
-    public ActiveFilesAdapter(Context context, Furk.ActiveFilesFragment activeFilesFragment)
+    public ActiveFilesAdapter(Furk.ActiveFilesFragment activeFilesFragment)
     {
-        super(context);
+        super(activeFilesFragment.getActivity());
         this.activeFilesFragment = activeFilesFragment;
         active = new JSONArray();
     }
@@ -36,7 +36,7 @@ public class ActiveFilesAdapter extends FilesAdapter {
     public void Execute(Object... args) {
         activeFilesFragment.setEmptyText("Loading..");
         jArrayChain.clear();
-        APIClient.get("dl/get",this);
+        APIClient.get(activeFilesFragment.getActivity(),"dl/get",this);
         ((Furk)context).setRefreshing();
     }
 
@@ -87,13 +87,15 @@ public class ActiveFilesAdapter extends FilesAdapter {
     public void processAPIError(Throwable e) {
         try {
             activeFilesFragment.setEmptyText(e.getMessage());
-            jArrayChain.clear();
-            notifyDataSetChanged();
             ((Furk) context).doneRefrshing();
         }
         catch (IllegalStateException e1)
         {
             Log.d("furk", "fragment disposed before async api request finished");
+        }
+        finally {
+            jArrayChain.clear();
+            notifyDataSetChanged();
         }
     }
 

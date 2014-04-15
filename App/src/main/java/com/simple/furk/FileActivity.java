@@ -4,12 +4,10 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,11 +39,9 @@ public class FileActivity extends ActionBarActivity {
             finish();
         }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getProperty("name"));
-        }
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(getProperty("name"));
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -63,18 +59,7 @@ public class FileActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.action_search:
-//                onSearchRequested();
-//                return true;
-//            case android.R.id.home:
-//                Intent intent = new Intent(this, Furk.class);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                startActivity(intent);
-//                return true;
-//            default:
-//                return false;
-//        }
+
         if(item.getItemId() == android.R.id.home)
         {
             finish();
@@ -116,7 +101,7 @@ public class FileActivity extends ActionBarActivity {
         try {
            return file.getString(property);
         } catch (JSONException e) {
-            Toast.makeText(getApplicationContext(),"Can't find property "+property,Toast.LENGTH_LONG);
+            Toast.makeText(this,"Can't find property "+property,Toast.LENGTH_LONG).show();
             return null;
         }
     }
@@ -163,7 +148,7 @@ public class FileActivity extends ActionBarActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            adapter = new TFilesAdapter(getActivity(),TFilesFragment.this);
+            adapter = new TFilesAdapter(TFilesFragment.this);
             setListAdapter(adapter);
             registerForContextMenu(getListView());
             try {

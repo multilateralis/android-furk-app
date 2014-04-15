@@ -2,6 +2,7 @@ package com.simple.furk.adapter;
 
 import android.content.Context;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 public class SearchFilesAdapter extends FilesAdapter {
 
     private int loaderPos;
+    private boolean loaderEnabled;
     private String searchQuery;
     private String sortQuery;
     private final SearchActivity.SearchFragment searchFragment;
@@ -27,9 +29,10 @@ public class SearchFilesAdapter extends FilesAdapter {
 //    private ImageLoader imageLoader;
 
 
-    public SearchFilesAdapter(Context context,SearchActivity.SearchFragment searchFragment) {
-        super(context);
+    public SearchFilesAdapter(SearchActivity.SearchFragment searchFragment) {
+        super(searchFragment.getActivity());
         this.loaderPos = 0;
+        this.loaderEnabled = true;
         this.searchFragment = searchFragment;
         this.searchQuery = "";
         this.sortQuery = "cached";
@@ -37,28 +40,34 @@ public class SearchFilesAdapter extends FilesAdapter {
 
     public void Execute(Object... args)
     {
-        searchFragment.setListShown(false);
-        jArrayChain.clear();
+        loaderEnabled = true;
         searchQuery = (String)args[0];
         sortQuery = (String)args[1];
+
+        searchFragment.setEmptyText("");
+        searchFragment.setListShown(false);
+
+        jArrayChain.clear();
+
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("q", searchQuery);
         params.put("sort",sortQuery);
-        APIClient.get("plugins/metasearch", params,this);
+        APIClient.get(searchFragment.getActivity(),"plugins/metasearch", params,this);
     }
 
 
     public void processAPIResponse(JSONObject response){
-        JSONArray jArray = null;
-        searchFragment.setEmptyText("");
-        String message = "Error";
+        String message = "";
         try {
             String totalFound = response.getJSONObject("stats").getString("total_found");
             if(Integer.parseInt(totalFound) > 0) {
-                jArray = response.getJSONArray("files");
+                JSONArray jArray = response.getJSONArray("files");
+                if(jArray.length() < 25)
+                    loaderEnabled = false;
                 jArrayChain.addJSONArray(jArray);
             }
             else{
+                loaderEnabled = false;
                 message = "No Matches Found";
             }
         } catch (Exception e) {
@@ -78,12 +87,14 @@ public class SearchFilesAdapter extends FilesAdapter {
         {
         searchFragment.setEmptyText(e.getMessage());
         searchFragment.setListShown(true);
-        jArrayChain.clear();
-        notifyDataSetChanged();
         }
         catch (IllegalStateException e1)
         {
-
+            Log.d("furk", "fragment disposed before async api request finished");
+        }
+        finally {
+            jArrayChain.clear();
+            notifyDataSetChanged();
         }
     }
 
@@ -91,11 +102,11 @@ public class SearchFilesAdapter extends FilesAdapter {
     @Override
     public int getCount() {
         int length = jArrayChain.length();
-        if(length > 0)
+        if(loaderEnabled)
             //Add an extra listview item for the loading spinner
             return length + 1;
         else
-            return 0;
+            return length;
     }
 
     @Override
@@ -115,7 +126,7 @@ public class SearchFilesAdapter extends FilesAdapter {
         params.put("q", searchQuery);
         params.put("sort",sortQuery);
         params.put("offset", String.valueOf(jArrayChain.length()));
-        APIClient.get("plugins/metasearch", params,this);
+        APIClient.get(searchFragment.getActivity(),"plugins/metasearch", params,this);
     }
 
     @Override

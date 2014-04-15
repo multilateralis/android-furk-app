@@ -3,15 +3,13 @@ package com.simple.furk;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.ListFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.ListFragment;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
+import android.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,8 +66,8 @@ public class Furk extends ActionBarActivity
 
                 HashMap<String,String> params = new HashMap<String,String>();
                 params.put("url",torrent);
-                APIClient.get("dl/add", params,this);
-                Toast.makeText(getApplicationContext(), "Adding torrent", Toast.LENGTH_LONG).show();
+                APIClient.get(this,"dl/add", params,this);
+                Toast.makeText(this, "Adding torrent", Toast.LENGTH_LONG).show();
             }
         }
 
@@ -86,14 +84,14 @@ public class Furk extends ActionBarActivity
         }
         else if(position == 0)
         {
-            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MyFilesFragment(),"CURRENT")
                     .commit();
         }
         else
         {
-            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new ActiveFilesFragment(),"CURRENT")
                     .commit();
@@ -131,7 +129,7 @@ public class Furk extends ActionBarActivity
 
     private void refreshCurrentFragmet()
     {
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManager = getFragmentManager();
         Fragment currentFragment = fragmentManager.findFragmentByTag("CURRENT");
         if(currentFragment.getClass().equals(MyFilesFragment.class))
         {
@@ -144,7 +142,7 @@ public class Furk extends ActionBarActivity
     }
 
     public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
@@ -160,11 +158,11 @@ public class Furk extends ActionBarActivity
             getMenuInflater().inflate(R.menu.furk, menu);
             restoreActionBar();
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-                SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-                searchView.setOnQueryTextListener(this);
-                searchView.setIconifiedByDefault(false);
-            }
+            SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+            searchView.setOnQueryTextListener(this);
+            searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint("Search Furk.net");
+
             return true;
         }
         return super.onCreateOptionsMenu(menu);
@@ -237,7 +235,7 @@ public class Furk extends ActionBarActivity
         try {
             if(response.getString("status").equals("ok"))
             {
-                Toast.makeText(getApplicationContext(),"Torrent added",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Torrent added",Toast.LENGTH_LONG).show();
 
                 if(response.has("files"))
                 {
@@ -250,7 +248,7 @@ public class Furk extends ActionBarActivity
                     }
                     else
                     {
-                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        FragmentManager fragmentManager = getFragmentManager();
                         fragmentManager.beginTransaction()
                                 .replace(R.id.container, new ActiveFilesFragment())
                                 .commit();
@@ -261,18 +259,18 @@ public class Furk extends ActionBarActivity
 
             }
             else
-                Toast.makeText(getApplicationContext(),"Error downloading",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Error downloading",Toast.LENGTH_LONG).show();
 
 
 
         } catch (JSONException e) {
-            Toast.makeText(getApplicationContext(),"Error downloading",Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Error downloading",Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void processAPIError(Throwable e) {
-        Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+        Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
 
     }
 
@@ -283,7 +281,7 @@ public class Furk extends ActionBarActivity
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            adapter = new MyFilesAdapter(getActivity(),this);
+            adapter = new MyFilesAdapter(this);
             setListAdapter(adapter);
             adapter.Execute();
 
@@ -332,7 +330,7 @@ public class Furk extends ActionBarActivity
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            adapter = new ActiveFilesAdapter(getActivity(), this);
+            adapter = new ActiveFilesAdapter(this);
             setListAdapter(adapter);
             adapter.Execute();
         }
@@ -370,20 +368,11 @@ public class Furk extends ActionBarActivity
                 adb
                         .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-
-
-                        try {
-                            HashMap<String, String> params = new HashMap<String, String>();
-                            params.put("info_hash", jObj.getString("info_hash"));
-                            APIClient.get("dl/add", params, ActiveFilesFragment.this);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                         retryDownload(jObj);
                     }
                 })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-
                         dialog.cancel();
                     }
                 });
@@ -395,8 +384,15 @@ public class Furk extends ActionBarActivity
             }
         }
 
-        private void retryDownload()
+        private void retryDownload(JSONObject jObj)
         {
+            try {
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("info_hash", jObj.getString("info_hash"));
+                APIClient.get(getActivity().getApplicationContext(),"dl/add", params, ActiveFilesFragment.this);
+            } catch (JSONException e) {
+                Toast.makeText(getActivity(),"Error adding file to downloads", Toast.LENGTH_LONG).show();
+            }
 
         }
 
@@ -408,7 +404,7 @@ public class Furk extends ActionBarActivity
 
         @Override
         public void processAPIError(Throwable e) {
-
+            Toast.makeText(getActivity(),"Error adding file to downloads. "+e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         @Override
