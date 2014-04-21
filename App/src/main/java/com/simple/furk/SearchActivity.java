@@ -1,6 +1,7 @@
 package com.simple.furk;
 
 import android.app.AlertDialog;
+import android.support.v4.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.app.ActionBar;
@@ -24,39 +25,46 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 
+
 public class SearchActivity extends ActionBarActivity implements SearchView.OnQueryTextListener {
 
     private String searchQuery;
-    private SearchFragment searchFragment;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
         searchQuery = getIntent().getExtras().getString("query");
-        String sortQuery = "cached";
-        searchFragment = new SearchFragment(searchQuery, sortQuery);
 
 
-        String title = getString(R.string.title_section4);
-        ActionBar actionBar = getActionBar();
-        actionBar.setTitle(title);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .add(R.id.container, searchFragment)
-                .commit();
+        if(savedInstanceState == null) {
+            SearchFragment searchFragment = new SearchFragment(searchQuery, "cached");
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .add(R.id.container, searchFragment,"CURRENT")
+                    .commit();
+        }
 
     }
 
+    private void restoreActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(getString(R.string.title_section4));
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.search, menu);
 
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        MenuItem searchMenuItem = menu.findItem( R.id.action_search); // get my MenuItem with placeholder submenu
+        restoreActionBar();
+
+        MenuItem searchMenuItem = menu.findItem( R.id.action_search);
         searchMenuItem.expandActionView();
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
         searchView.setQuery(searchQuery,false);
@@ -66,6 +74,8 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
 
         return true;
     }
+
+
 
     private String getSortQuery(int itemId)
     {
@@ -95,6 +105,7 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
         if(item.isCheckable() && !item.isChecked())
         {
             item.setChecked(true);
+            SearchFragment searchFragment = getSearchFragment();
             searchFragment.changeSortQuery(getSortQuery(id));
             searchFragment.makeSearch();
             searchFragment.getView().requestFocus();
@@ -105,6 +116,7 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
 
     @Override
     public boolean onQueryTextSubmit(String s) {
+        SearchFragment searchFragment = getSearchFragment();
         searchFragment.changeSearchQuery(s);
         searchFragment.makeSearch();
         return false;
@@ -115,7 +127,11 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
         return false;
     }
 
-
+     private SearchFragment getSearchFragment()
+     {
+         FragmentManager fragmentManager = getSupportFragmentManager();
+         return (SearchFragment)fragmentManager.findFragmentByTag("CURRENT");
+     }
 
     public static class SearchFragment extends ListFragment implements APIClient.APICallback{
         protected SearchFilesAdapter adapter;
@@ -138,10 +154,25 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            setListShown(false);
             adapter = new SearchFilesAdapter(this);
             setListAdapter(adapter);
-            adapter.Execute(searchQuery,sortQuery);
+
+            if(adapter.loadState(savedInstanceState)) {
+                searchQuery = savedInstanceState.getString("search_query");
+                sortQuery = savedInstanceState.getString("search_sort_query");
+            }
+            else
+            {
+                setListShown(false);
+                adapter.Execute(searchQuery, sortQuery);
+            }
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState)
+        {
+            super.onSaveInstanceState(outState);
+            adapter.saveState(outState);
         }
 
         public void changeSearchQuery(String query)

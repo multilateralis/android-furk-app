@@ -2,9 +2,11 @@ package com.simple.furk;
 
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.widget.ImageView;
 
 import org.json.JSONObject;
 
@@ -24,6 +26,15 @@ public class APIClient {
     //private static AsyncHttpClient client = new AsyncHttpClient();
 
 
+    public static void get(Context context,String url, HashMap<String,String> params, APICallback callback,ProgressDialog dialog) {
+        checkAPIKey(context);
+        APIResponseHandler handler = new APIResponseHandler(callback,dialog);
+        Ion.with(context,getAbsoluteUrl(url,params))
+                .progressDialog(dialog)
+                .asString()
+                .setCallback(handler);
+    }
+
     public static void get(Context context,String url, HashMap<String,String> params, APICallback callback) {
         checkAPIKey(context);
         APIResponseHandler handler = new APIResponseHandler(callback);
@@ -39,6 +50,7 @@ public class APIClient {
                 .asString()
                 .setCallback(handler);
     }
+
 
     public void post(Context context, String url, HashMap<String,String> params, APICallback callback) {
         checkAPIKey(context);
@@ -81,13 +93,21 @@ public class APIClient {
 
     private  static  class APIResponseHandler implements FutureCallback<String> {
         private APICallback callback;
+        private ProgressDialog dialog;
         APIResponseHandler(APICallback callback)
         {
+            this.callback = callback;
+        }
+        APIResponseHandler(APICallback callback,ProgressDialog dialog)
+        {
+            this.dialog = dialog;
             this.callback = callback;
         }
 
         @Override
         public void onCompleted(Exception e, String result) {
+            if(dialog != null)
+                dialog.dismiss();
             try {
                 JSONObject jObj = new JSONObject(result);
                 if(jObj.has("error") && jObj.getString("error").equals("access denied"))

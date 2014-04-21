@@ -12,9 +12,12 @@
         <!--android:title="@string/context_download"-->
         <!--android:id="@+id/menu_download"/>-->
     <item
+        android:title="@string/context_share"
+        android:id="@+id/context_share"/>
+    <item
         android:title="@string/context_copy_name"
-        android:id="@+id/menu_copy_name"/>
+        android:id="@+id/context_copy_name"/>
     <item
     android:title="@string/context_link_address"
-    android:id="@+id/menu_copy_link"/>
+    android:id="@+id/context_link_address"/>
 </menu>

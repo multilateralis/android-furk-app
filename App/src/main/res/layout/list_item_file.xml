@@ -4,7 +4,6 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="5dip"
-    android:background="#ebebeb"
     android:id="@+id/listItemView">
 
    <!-- <ImageView
@@ -27,17 +26,30 @@
         <!--android:textSize="20sp"-->
         <!--android:textColor="#fffff3ee" />-->
 
+
     <TextView
         android:id="@+id/listview_description"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="14dip"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="10dip"
+        android:layout_alignParentLeft="true"
         android:ellipsize="marquee"
         android:singleLine="true"
-        android:text="Description"
-        android:textSize="11sp" />
+        android:layout_marginLeft="10dip"
+        android:text="Size: 158 MB Added on: Apr 17"
+        android:textSize="11sp"
+        android:textColor="#363636" />
+    <TextView
+        android:id="@+id/listview_description_attachment"
+        android:layout_width="wrap_content"
+        android:layout_height="14dip"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/listview_description"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:text=""
+        android:textSize="11sp"
+        android:textColor="#363636" />
 
     <TextView
         android:id="@+id/listview_title"
@@ -49,8 +61,7 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="10dip"
         android:gravity="center_vertical"
-        android:text="Example Title"
-        android:textSize="16sp"
-        android:autoText="false" />
+        android:text="Example Title has to be long SO I can  test the LAYOUT[LOL].mp4"
+        android:textSize="16sp" />
 
 </RelativeLayout>

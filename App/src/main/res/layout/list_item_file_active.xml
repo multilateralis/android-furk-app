@@ -4,7 +4,6 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="6dip"
-    android:background="#ebebeb"
     android:id="@+id/listItemViewActive">
 
     <!--<ImageView

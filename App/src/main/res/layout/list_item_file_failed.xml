@@ -4,7 +4,6 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="5dip"
-    android:background="#FFB9B9B9"
     android:id="@+id/listItemViewFailed">
 
     <!-- <ImageView
@@ -28,22 +27,23 @@
     <!--android:textColor="#fffff3ee" />-->
 
     <TextView
-        android:id="@+id/listview_description"
-        android:layout_width="fill_parent"
+        android:id="@+id/listview_failed"
+        android:layout_width="wrap_content"
         android:layout_height="14dip"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
         android:ellipsize="marquee"
         android:singleLine="true"
-        android:text="Status: Failed"
-        android:textSize="11sp" />
+        android:text="Failed"
+        android:textSize="11sp"
+        android:textColor="#363636" />
 
     <TextView
         android:id="@+id/listview_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/listview_description"
+        android:layout_above="@id/listview_failed"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"

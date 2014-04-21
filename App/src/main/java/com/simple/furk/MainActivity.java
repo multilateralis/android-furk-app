@@ -17,15 +17,12 @@ public class MainActivity extends ActionBarActivity {
         //setContentView(R.layout.activity_main);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String scheme = getIntent().getScheme();
 
-        if(scheme != null && scheme.equals("furk-cmd"))
+        if(getIntent().getAction().equals("com.simple.furk.LOGOUT"))
         {
-            if(getIntent().getDataString().equals("furk-cmd://logout"))
-            {
-                preferences.edit().remove("api_key").commit();
-            }
+            preferences.edit().remove("api_key").commit();
         }
+
 
         String apiKey = preferences.getString("api_key","");
 

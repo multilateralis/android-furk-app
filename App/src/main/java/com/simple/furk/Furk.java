@@ -2,12 +2,14 @@ package com.simple.furk;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListFragment;
+import android.os.Debug;
 import android.support.v4.widget.DrawerLayout;
 import android.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -45,7 +47,6 @@ public class Furk extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         refreshing = false;
         collapseSearch = false;
 
@@ -66,8 +67,12 @@ public class Furk extends ActionBarActivity
 
                 HashMap<String,String> params = new HashMap<String,String>();
                 params.put("url",torrent);
-                APIClient.get(this,"dl/add", params,this);
-                Toast.makeText(this, "Adding torrent", Toast.LENGTH_LONG).show();
+                ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setMessage("Adding torrent");
+                dialog.setIndeterminate(true);
+                dialog.show();
+                APIClient.get(this,"dl/add", params,this, dialog);
+                //Toast.makeText(this, "Adding torrent", Toast.LENGTH_LONG).show();
             }
         }
 
@@ -235,8 +240,6 @@ public class Furk extends ActionBarActivity
         try {
             if(response.getString("status").equals("ok"))
             {
-                Toast.makeText(this,"Torrent added",Toast.LENGTH_LONG).show();
-
                 if(response.has("files"))
                 {
                     JSONArray files = response.getJSONArray("files");
@@ -296,7 +299,7 @@ public class Furk extends ActionBarActivity
         @Override
         public void onStop() {
             super.onStop();
-            adapter.saveMyFiles();
+            adapter.saveState();
         }
 
 

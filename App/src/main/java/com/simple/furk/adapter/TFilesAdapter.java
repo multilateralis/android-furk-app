@@ -1,16 +1,17 @@
 package com.simple.furk.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.simple.furk.APIClient;
+import com.simple.furk.APIUtils;
 import com.simple.furk.FileActivity;
 import com.simple.furk.R;
 
@@ -77,6 +78,33 @@ public class TFilesAdapter extends FilesAdapter {
 
     }
 
+    public void saveState(Bundle savedInstanceState)
+    {
+        if(jArrayChain.length() > 0)
+        {
+            savedInstanceState.putString("file_tfiles",jArrayChain.getJSONArray(0).toString());
+        }
+    }
+
+    public boolean loadState(Bundle savedInstanceState)
+    {
+        if(savedInstanceState != null && savedInstanceState.containsKey("file_tfiles"))
+        {
+            try {
+                JSONArray jArray = new JSONArray(savedInstanceState.getString("file_tfiles"));
+                jArrayChain = new JSONArrayChain(jArray);
+            } catch (JSONException e) {
+                return false;
+            }
+            tFilesFragment.setEmptyText("");
+            tFilesFragment.setListShown(true);
+            notifyDataSetChanged();
+            return true;
+        }
+        else
+            return false;
+    }
+
 
     public String getFileURL(int index)
     {
@@ -124,34 +152,23 @@ public class TFilesAdapter extends FilesAdapter {
         TextView title = (TextView) rowView.findViewById(R.id.listview_title);
         TextView description = (TextView) rowView.findViewById(R.id.listview_description);
 
+        String strTitle = "Unknown";
+        String strDescription = "";
         try
         {
             JSONObject jsonObj =  jArrayChain.getJSONObject(position);
-            title.setText(Html.fromHtml(jsonObj.getString("name")).toString());
-            long size = Long.parseLong(jsonObj.getString("size"));
-            String sizePref = "B";
-            if(size >= 1073741824)
-            {
-                size = size/1073741824;
-                sizePref = "GB";
-            }
-            else if(size >= 1048576)
-            {
-                size = size/1048576;
-                sizePref = "MB";
-            }
-            else if(size >= 1024)
-            {
-                size = size/1024;
-                sizePref = "KB";
-            }
-
-            description.setText("Size: " + size +" "+ sizePref);
-//                imageLoader.displayImage(jsonObj.getJSONArray("ss_urls_tn ").getString(0), imageView);
+            strTitle = Html.fromHtml(jsonObj.getString("name")).toString();
+            strDescription = APIUtils.formatSize(jsonObj.getString("size"));
+            if(jsonObj.has("bitrate"))
+                strDescription += "  "+ APIUtils.formatBitRate(jsonObj.getString("bitrate"));
         }
         catch (JSONException e)
         {
             e.printStackTrace();
+        }
+        finally {
+            title.setText(strTitle);
+            description.setText(strDescription);
         }
 
 

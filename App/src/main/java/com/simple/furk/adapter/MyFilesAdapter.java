@@ -2,16 +2,17 @@ package com.simple.furk.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Message;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.koushikdutta.ion.Ion;
 import com.simple.furk.APIClient;
+import com.simple.furk.APIUtils;
 import com.simple.furk.Furk;
 import com.simple.furk.R;
 
@@ -52,7 +53,7 @@ public class MyFilesAdapter extends FilesAdapter {
     }
 
 
-    public void saveMyFiles()
+    public void saveState()
     {
         if(jArrayChain.length() > 0)
         {
@@ -163,43 +164,28 @@ public class MyFilesAdapter extends FilesAdapter {
             }
 
             TextView title = (TextView) rowView.findViewById(R.id.listview_title);
-            //TextView icon = (TextView) rowView.findViewById(R.id.icon);
             TextView description = (TextView) rowView.findViewById(R.id.listview_description);
-            //ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
-            try
-            {
-                JSONObject jsonObj =  jArrayChain.getJSONObject(position);
-                title.setText(Html.fromHtml(jsonObj.getString("name")).toString());
-                long size = Long.parseLong(jsonObj.getString("size"));
-                String sizePref = "B";
-                if(size >= 1073741824)
-                {
-                    size = size/1073741824;
-                    sizePref = "GB";
-                }
-                else if(size >= 1048576)
-                {
-                    size = size/1048576;
-                    sizePref = "MB";
-                }
-                else if(size >= 1024)
-                {
-                    size = size/1024;
-                    sizePref = "KB";
-                }
 
-                //String typeLetter = jsonObj.getString("type").toUpperCase().substring(0,1);
-                description.setText("Size: " + size +" "+ sizePref);
-                //icon.setText(typeLetter);
-//                imageLoader.displayImage(jsonObj.getJSONArray("ss_urls_tn ").getString(0), imageView);
+            String strTitle = "Unknown";
+            String strDescription = "";
+            try {
+                JSONObject jsonObj = jArrayChain.getJSONObject(position);
+                strTitle = Html.fromHtml(jsonObj.getString("name")).toString();
+                strDescription = APIUtils.formatSize(jsonObj.getString("size"));
+                strDescription += "  " + APIUtils.formatDate(jsonObj.getString("ctime"));
             }
             catch (JSONException e)
             {
                 e.printStackTrace();
             }
+            finally {
+                title.setText(strTitle);
+                description.setText(strDescription);
+            }
         }
 
         return rowView;
     }
+
 
 }

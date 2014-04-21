@@ -1,6 +1,7 @@
 package com.simple.furk.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.simple.furk.APIClient;
+import com.simple.furk.APIUtils;
 import com.simple.furk.R;
 import com.simple.furk.SearchActivity;
 
@@ -55,6 +57,38 @@ public class SearchFilesAdapter extends FilesAdapter {
         APIClient.get(searchFragment.getActivity(),"plugins/metasearch", params,this);
     }
 
+    public void saveState(Bundle savedInstanceState)
+    {
+        if(jArrayChain.length() > 0)
+        {
+            savedInstanceState.putString("search_results",jArrayChain.getJSONArray(0).toString());
+            savedInstanceState.putString("search_query",searchQuery);
+            savedInstanceState.putString("search_sort_query",sortQuery);
+            savedInstanceState.putBoolean("search_loader_enabled",loaderEnabled);
+        }
+    }
+
+    public boolean loadState(Bundle savedInstanceState)
+    {
+        if(savedInstanceState != null && savedInstanceState.containsKey("search_results"))
+        {
+            try {
+                this.jArrayChain = new JSONArrayChain(new JSONArray(savedInstanceState.getString("search_results","")));
+            } catch (JSONException e) {
+                this.jArrayChain = new JSONArrayChain();
+            }
+            this.searchQuery = savedInstanceState.getString("search_query");
+            this.sortQuery = savedInstanceState.getString("search_sort_query");
+            this.loaderEnabled = savedInstanceState.getBoolean("search_loader_enabled");
+            searchFragment.setEmptyText("");
+            searchFragment.setListShown(true);
+            notifyDataSetChanged();
+
+            return true;
+        }
+        else
+            return false;
+    }
 
     public void processAPIResponse(JSONObject response){
         String message = "";
@@ -93,6 +127,7 @@ public class SearchFilesAdapter extends FilesAdapter {
             Log.d("furk", "fragment disposed before async api request finished");
         }
         finally {
+            loaderEnabled = false;
             jArrayChain.clear();
             notifyDataSetChanged();
         }
@@ -158,44 +193,50 @@ public class SearchFilesAdapter extends FilesAdapter {
             else
             {
                 rowView = convertView;
-                rowView.setBackgroundColor(0xFFEBEBEB);
+                //rowView.setBackgroundColor(0xFFEBEBEB);
             }
 
             TextView title = (TextView) rowView.findViewById(R.id.listview_title);
             TextView description = (TextView) rowView.findViewById(R.id.listview_description);
-            //ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+            TextView descriptionAttc = (TextView) rowView.findViewById(R.id.listview_description_attachment);
+
+            String strTitle = "Unknown";
+            String strDescription = "";
             try
             {
 
                 JSONObject jsonObj =  jArrayChain.getJSONObject(position);
-                title.setText(Html.fromHtml(jsonObj.getString("name")).toString());
-                long size = Long.parseLong(jsonObj.getString("size"));
-                String sizePref = "B";
-                if(size >= 1073741824)
-                {
-                    size = size/1073741824;
-                    sizePref = "GB";
-                }
-                else if(size >= 1048576)
-                {
-                    size = size/1048576;
-                    sizePref = "MB";
-                }
-                else if(size >= 1024)
-                {
-                    size = size/1024;
-                    sizePref = "KB";
-                }
+                strTitle = Html.fromHtml(jsonObj.getString("name")).toString();
 
-                description.setText("Size: " + size +" "+ sizePref);
+                strDescription = APIUtils.formatSize(jsonObj.getString("size"));
+                if(jsonObj.has("bitrate"))
+                    strDescription += "  "+ APIUtils.formatBitRate(jsonObj.getString("bitrate"));
+                description.setText(strDescription);
                 String is_ready = jsonObj.getString("is_ready");
                 if(is_ready.equals("0"))
-                    rowView.setBackgroundColor(0xFFB9B9B9);
-//                imageLoader.displayImage(jsonObj.getJSONArray("ss_urls_tn ").getString(0), imageView);
+                {
+                    strDescription += "  Cached: ";
+                    descriptionAttc.setText("No");
+                    descriptionAttc.setTextColor(0xffea080e);
+
+                }
+                else
+                {
+                    strDescription += "  Cached: ";
+                    descriptionAttc.setText("Yes");
+                    descriptionAttc.setTextColor(0xff007a09);
+                }
+
+
+
             }
             catch (JSONException e)
             {
                 e.printStackTrace();
+            }
+            finally {
+                title.setText(strTitle);
+                description.setText(strDescription);
             }
 
 

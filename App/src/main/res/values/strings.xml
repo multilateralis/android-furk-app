@@ -30,5 +30,6 @@
     <string name="sort_size_asc">Sort by size ascendant</string>
     <string name="sort_date">Sort by date</string>
     <string name="sort_date_asc">Sort by date ascendant</string>
+    <string name="context_share">Share</string>
 
 </resources>

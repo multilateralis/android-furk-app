@@ -10,6 +10,12 @@
         app:showAsAction="always"
         />
 
+    <item android:id="@+id/action_share"
+        android:title="Share"
+        android:icon="@drawable/ic_action_share"
+        app:showAsAction="always"
+        />
+
     <item android:id="@+id/context_open_browser"
         android:title="@string/context_open_browser"
         app:showAsAction="never"

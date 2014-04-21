@@ -5,10 +5,9 @@
 
     <Preference android:title="Logout">
         <intent
-            android:action="android.intent.action.MAIN"
+            android:action="com.simple.furk.LOGOUT"
             android:targetPackage="com.simple.furk"
             android:targetClass="com.simple.furk.MainActivity"
-            android:data="furk-cmd://logout"
             />
     </Preference>
 

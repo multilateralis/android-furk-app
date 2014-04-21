@@ -36,25 +36,37 @@ public class FileActivity extends ActionBarActivity {
         try {
             file = new JSONObject(fileString);
         } catch (JSONException e) {
+            Toast.makeText(this,"Can't open file",Toast.LENGTH_LONG).show();
             finish();
         }
 
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(getProperty("name"));
+        if(savedInstanceState == null) {
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .add(R.id.container, new TFilesFragment())
-                .commit();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .add(R.id.container, new TFilesFragment())
+                    .commit();
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        restoreActionBar();
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.file, menu);
 
         return true;
+    }
+
+    private void restoreActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        try {
+            actionBar.setTitle(file.getString("name"));
+        } catch (JSONException e) {
+            Toast.makeText(this,"Can't find property: \"name\"",Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -68,6 +80,11 @@ public class FileActivity extends ActionBarActivity {
         if(item.getItemId() == R.id.action_download)
         {
             downloadFile();
+            return true;
+        }
+        else if(item.getItemId() == R.id.action_share)
+        {
+            shareFile();
             return true;
         }
         else if(item.getItemId() == R.id.context_open_browser)
@@ -96,49 +113,70 @@ public class FileActivity extends ActionBarActivity {
         }
     }
 
-    private String getProperty(String property)
+
+    public void shareFile()
     {
         try {
-           return file.getString(property);
+            String name = file.getString("name");
+            String url = file.getString("url_dl");
+            Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, url);
+            startActivity(Intent.createChooser(intent,"Share via"));
         } catch (JSONException e) {
-            Toast.makeText(this,"Can't find property "+property,Toast.LENGTH_LONG).show();
-            return null;
+            Toast.makeText(this,"Can't find property in file",Toast.LENGTH_LONG).show();
         }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"No activity can handle share",Toast.LENGTH_LONG).show();
+        }
+
     }
 
     public void downloadFile()
     {
-        String url = getProperty("url_dl");
-        Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(myIntent);
+        try {
+            String url = file.getString("url_dl");
+            Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(myIntent);
+        } catch (JSONException e) {
+            Toast.makeText(this,"Can't find property: url_dl",Toast.LENGTH_LONG).show();
+        }
     }
 
     public void openFileinBrowser()
     {
-        String pageUrl = getProperty("url_page");
+        try {
+        String pageUrl = file.getString("url_page");
         String url = "https://www.furk.net" + pageUrl;
         Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(myIntent);
+        } catch (JSONException e) {
+            Toast.makeText(this,"Can't find property: url_dl",Toast.LENGTH_LONG).show();
+        }
     }
 
     public void searchFileInGoogle()
     {
-        String name = getProperty("name");
+        try {
+        String name = file.getString("name");
         String url = "http://www.google.com/#q="+name;
         Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(myIntent);
+        } catch (JSONException e) {
+            Toast.makeText(this,"Can't find property: \"name\"",Toast.LENGTH_LONG).show();
+        }
     }
 
     private void copyFilePropertyToClipboard(String property)
     {
-        String text = getProperty(property);
-        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(text);
-        } else {
-            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
-            clipboard.setPrimaryClip(clip);
+        try {
+        String text = file.getString(property);
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
+        clipboard.setPrimaryClip(clip);
+        } catch (JSONException e) {
+            Toast.makeText(this,"Can't find property: "+ property,Toast.LENGTH_LONG).show();
         }
     }
 
@@ -151,12 +189,21 @@ public class FileActivity extends ActionBarActivity {
             adapter = new TFilesAdapter(TFilesFragment.this);
             setListAdapter(adapter);
             registerForContextMenu(getListView());
-            try {
-                adapter.Execute(file.getString("id"));
 
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if(!adapter.loadState(savedInstanceState)) {
+                try {
+                    adapter.Execute(file.getString("id"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState){
+            super.onSaveInstanceState(outState);
+            adapter.saveState(outState);
         }
 
         @Override
@@ -164,7 +211,7 @@ public class FileActivity extends ActionBarActivity {
             super.onCreateContextMenu(menu, v, menuInfo);
 
             MenuInflater inflater = getActivity().getMenuInflater();
-            inflater.inflate(R.menu.context_my_files, menu);
+            inflater.inflate(R.menu.context_files, menu);
         }
 
         @Override
@@ -172,10 +219,13 @@ public class FileActivity extends ActionBarActivity {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             switch (item.getItemId())
             {
-                case R.id.menu_copy_name:
-                    copyToClipboard(getPropertyFromItem("name",info.position));
+                case R.id.context_share:
+                    shareFile(info.position);
                     return true;
-                case R.id.menu_copy_link:
+                case R.id.context_copy_name:
+                    copyToClipboard(getPropertyFromItem("name", info.position));
+                    return true;
+                case R.id.context_link_address:
                     copyToClipboard(getPropertyFromItem("url_dl",info.position));
                     return true;
                 default:
@@ -191,26 +241,41 @@ public class FileActivity extends ActionBarActivity {
             startActivity(myIntent);
         }
 
+        public void shareFile(int position)
+        {
+            try {
+                JSONObject jObj = adapter.getJSONObject(position);
+                String name = jObj.getString("name");
+                String url = jObj.getString("url_dl");
+                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
+                intent.putExtra(android.content.Intent.EXTRA_TEXT, url);
+                startActivity(Intent.createChooser(intent,"Share via"));
+            } catch (JSONException e) {
+                Toast.makeText(getActivity(),"Can't find property in file",Toast.LENGTH_LONG).show();
+            }
+            catch (android.content.ActivityNotFoundException ex) {
+                Toast.makeText(getActivity(),"No activity can handle share",Toast.LENGTH_LONG).show();
+            }
+
+        }
+
         private String getPropertyFromItem(String property, int position)
         {
             try {
                 JSONObject jObj = adapter.getJSONObject(position);
                 return jObj.getString(property);
             } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
+                Toast.makeText(getActivity(),"Can't find property:"+ property,Toast.LENGTH_LONG);
+                return "";
             }
         }
         private void copyToClipboard(String text)
         {
-            if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                clipboard.setText(text);
-            } else {
-                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
-                clipboard.setPrimaryClip(clip);
-            }
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
+            clipboard.setPrimaryClip(clip);
         }
 
     }
