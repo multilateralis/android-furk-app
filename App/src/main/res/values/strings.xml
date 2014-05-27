@@ -31,5 +31,7 @@
     <string name="sort_date">Sort by date</string>
     <string name="sort_date_asc">Sort by date ascendant</string>
     <string name="context_share">Share</string>
+    <string name="extension_title">Furk.net Search</string>
+    <string name="extension_description">Search episodes in furk.net</string>
 
 </resources>

@@ -35,5 +35,6 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile 'com.koushikdutta.ion:ion:1.2.4'
+    compile 'com.uwetrottmann.seriesguide:seriesguide-api:1.1.+'
 }
 

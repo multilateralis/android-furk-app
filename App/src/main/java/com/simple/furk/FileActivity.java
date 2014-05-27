@@ -26,15 +26,17 @@ import org.json.JSONObject;
 public class FileActivity extends ActionBarActivity {
 
 
-    private static JSONObject file;
+    private JSONObject file;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
 
         String fileString = getIntent().getStringExtra("file");
+        String id = null;
         try {
             file = new JSONObject(fileString);
+            id = file.getString("id");
         } catch (JSONException e) {
             Toast.makeText(this,"Can't open file",Toast.LENGTH_LONG).show();
             finish();
@@ -44,7 +46,7 @@ public class FileActivity extends ActionBarActivity {
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
-                    .add(R.id.container, new TFilesFragment())
+                    .add(R.id.container, new TFilesFragment(id))
                     .commit();
         }
     }
@@ -183,6 +185,17 @@ public class FileActivity extends ActionBarActivity {
     public static class TFilesFragment extends ListFragment
     {
         protected TFilesAdapter adapter;
+        private String id;
+
+        public TFilesFragment(String id)
+        {
+            this.id = id;
+        }
+
+        public TFilesFragment()
+        {
+        }
+
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
@@ -191,12 +204,11 @@ public class FileActivity extends ActionBarActivity {
             registerForContextMenu(getListView());
 
             if(!adapter.loadState(savedInstanceState)) {
-                try {
-                    adapter.Execute(file.getString("id"));
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                adapter.Execute(id);
+            }
+            else
+            {
+                id = savedInstanceState.getString("file_id");
             }
         }
 
@@ -204,6 +216,7 @@ public class FileActivity extends ActionBarActivity {
         public void onSaveInstanceState(Bundle outState){
             super.onSaveInstanceState(outState);
             adapter.saveState(outState);
+            outState.putString("file_id",id);
         }
 
         @Override

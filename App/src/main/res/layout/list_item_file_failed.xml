@@ -37,7 +37,7 @@
         android:singleLine="true"
         android:text="Failed"
         android:textSize="11sp"
-        android:textColor="#363636" />
+        android:textColor="@android:color/holo_red_dark" />
 
     <TextView
         android:id="@+id/listview_title"

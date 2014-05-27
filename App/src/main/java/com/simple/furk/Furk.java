@@ -5,11 +5,11 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListFragment;
-import android.os.Debug;
 import android.support.v4.widget.DrawerLayout;
 import android.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -20,6 +20,10 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
+
+import com.battlelancer.seriesguide.api.Episode;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 import com.simple.furk.adapter.ActiveFilesAdapter;
 import com.simple.furk.adapter.FilesAdapter;
 import com.simple.furk.adapter.MyFilesAdapter;
@@ -28,6 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 public class Furk extends ActionBarActivity
@@ -59,24 +66,72 @@ public class Furk extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-
-        String scheme = getIntent().getScheme();
-        if (scheme != null) {
-             if (scheme.equals("magnet") || scheme.equals("http") || scheme.equals("https")) {
-                String torrent = getIntent().getDataString();
-
-                HashMap<String,String> params = new HashMap<String,String>();
-                params.put("url",torrent);
-                ProgressDialog dialog = new ProgressDialog(this);
-                dialog.setMessage("Adding torrent");
-                dialog.setIndeterminate(true);
-                dialog.show();
-                APIClient.get(this,"dl/add", params,this, dialog);
-                //Toast.makeText(this, "Adding torrent", Toast.LENGTH_LONG).show();
-            }
-        }
-
+        handleIntent();
     }
+
+    private void handleIntent() {
+
+        if (getIntent().getAction() == "com.simple.furk.TORRENT_SEARCH") {
+            torrentSearch();
+        }
+        else if (getIntent().getScheme() != null) {
+            addTorrent();
+        }
+    }
+
+    private void addTorrent() {
+        String url = getIntent().getDataString();
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("url", url);
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Adding torrent");
+        dialog.setIndeterminate(true);
+        dialog.show();
+        APIClient.get(this, "dl/add", params, this, dialog);
+    }
+
+    private void torrentSearch() {
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Searching episode");
+        dialog.setIndeterminate(true);
+        dialog.show();
+
+        String url = getIntent().getDataString();
+        Ion.with(this, url)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+
+                        int start = result.indexOf("<torrent:infoHash>") + "<torrent:infoHash>".length();
+                        int end = result.indexOf("</torrent:infoHash>");
+
+                        if (start < end) {
+                            String hashInfo = result.substring(start, end);
+                            HashMap<String, String> params = new HashMap<String, String>();
+                            params.put("url", hashInfo);
+                            APIClient.get(Furk.this, "dl/add", params, Furk.this, dialog);
+                        } else {
+                            String query = getIntent().getExtras().getString("query");
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            try {
+                                intent.setData(Uri.parse("http://thepiratebay.se/search/"+ URLEncoder.encode(query,"UTF-8")+"/0/7/0"));
+                            } catch (UnsupportedEncodingException e1) {
+                                e1.printStackTrace();
+                            }
+                            finally {
+                                dialog.dismiss();
+                                startActivity(intent);
+                            }
+
+                        }
+
+                    }
+
+                });
+    }
+
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {

@@ -33,7 +33,9 @@ public class MainActivity extends ActionBarActivity {
         }
         else {
             Intent intent = new Intent(this,Furk.class);
+            intent.setAction(getIntent().getAction());
             intent.setData(getIntent().getData());
+            intent.putExtras(getIntent());
             startActivity(intent);
             finish();
         }

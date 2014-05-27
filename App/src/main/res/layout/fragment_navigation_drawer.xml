@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:choiceMode="singleChoice"
-    android:divider="@android:color/black"
+    android:divider="#ffababab"
     android:dividerHeight="0.5dp"
     tools:context="com.simple.furk.NavigationDrawerFragment"
-    android:background="#ff363636" />
+    android:background="@drawable/app_background"/>

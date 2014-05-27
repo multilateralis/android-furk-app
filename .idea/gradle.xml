@@ -7,8 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="C:\Users\Nicolas\Repositories\GitHub\android-furk-app" />
-            <option value="C:\Users\Nicolas\Repositories\GitHub\android-furk-app\App" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/App" />
           </set>
         </option>
       </GradleProjectSettings>

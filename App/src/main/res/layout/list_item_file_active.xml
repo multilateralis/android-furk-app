@@ -51,7 +51,8 @@
         android:layout_alignWithParentIfMissing="true"
         android:gravity="center_vertical"
         android:text="Example Title"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textColor="#ff0064be"/>
 
 
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.simple.furk"
-    android:versionCode="3"
-    android:versionName="0.3" >
+    android:versionCode="4"
+    android:versionName="0.4" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -23,15 +23,21 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:mimeType="application/x-bittorrent" />
-                <data android:scheme="http" android:mimeType="application/x-bittorrent" />
+                <data
+                    android:mimeType="application/x-bittorrent"
+                    android:scheme="http" />
             </intent-filter>
-            <intent-filter >
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="*"
                     android:pathPattern=".*\\.torrent"
@@ -71,23 +77,37 @@
         </activity>
         <activity
             android:name="com.simple.furk.SettingsActivity"
-            android:label="@string/settings_title">
+            android:label="@string/settings_title" >
         </activity>
         <activity
             android:name="com.simple.furk.SearchActivity"
             android:label="@string/title_activity_search"
-            android:parentActivityName="com.simple.furk.Furk"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:parentActivityName="com.simple.furk.Furk" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:value="@xml/searchable" />
         </activity>
+
+        <service
+            android:name="com.simple.furk.FurkServiceGuideExtension"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="com.simple.furk.FurkServiceGuideExtension"
+            android:description="@string/extension_description"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/extension_title" >
+            <intent-filter>
+                <action android:name="com.battlelancer.seriesguide.api.SeriesGuideExtension" />
+            </intent-filter>
+        </service>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>

@@ -62,6 +62,7 @@
         android:layout_marginLeft="10dip"
         android:gravity="center_vertical"
         android:text="Example Title has to be long SO I can  test the LAYOUT[LOL].mp4"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textColor="#ff0064be"/>
 
 </RelativeLayout>
