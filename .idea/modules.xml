@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/App/App.iml" filepath="$PROJECT_DIR$/App/App.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Furk.iml" filepath="$PROJECT_DIR$/Furk.iml" />
       <module fileurl="file://$PROJECT_DIR$/android-furk-app.iml" filepath="$PROJECT_DIR$/android-furk-app.iml" />
     </modules>
   </component>

@@ -92,14 +92,10 @@
                 android:name="android.app.searchable"
                 android:value="@xml/searchable" />
         </activity>
-
-        <service
-            android:name="com.simple.furk.FurkServiceGuideExtension"
-            android:exported="false" >
-        </service>
         <service
             android:name="com.simple.furk.FurkServiceGuideExtension"
             android:description="@string/extension_description"
+            android:exported="false"
             android:icon="@drawable/ic_launcher"
             android:label="@string/extension_title" >
             <intent-filter>
