@@ -40,7 +40,9 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
 
 
         if(savedInstanceState == null) {
-            SearchFragment searchFragment = new SearchFragment(searchQuery, "cached");
+            SearchFragment searchFragment = new SearchFragment();
+            searchFragment.setSearchQuery(searchQuery);
+            searchFragment.setSortQuery("cached");
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .add(R.id.container, searchFragment,"CURRENT")
@@ -138,16 +140,20 @@ public class SearchActivity extends ActionBarActivity implements SearchView.OnQu
         private String searchQuery;
         private String sortQuery;
 
-        public SearchFragment(String searchQuery, String sortQuery)
-        {
-            this.searchQuery = searchQuery;
-            this.sortQuery = sortQuery;
-        }
-
         public SearchFragment()
         {
             this.searchQuery = "";
             this.sortQuery = "cached";
+        }
+
+        public void setSearchQuery(String searchQuery)
+        {
+            this.searchQuery = searchQuery;
+        }
+
+        public void setSortQuery(String sortQuery)
+        {
+            this.sortQuery = sortQuery;
         }
 
         @Override

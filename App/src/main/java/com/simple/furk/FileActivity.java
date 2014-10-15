@@ -44,9 +44,11 @@ public class FileActivity extends ActionBarActivity {
 
         if(savedInstanceState == null) {
 
+            TFilesFragment fragment = new TFilesFragment();
+            fragment.setID(id);
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
-                    .add(R.id.container, new TFilesFragment(id))
+                    .add(R.id.container, fragment)
                     .commit();
         }
     }
@@ -187,13 +189,18 @@ public class FileActivity extends ActionBarActivity {
         protected TFilesAdapter adapter;
         private String id;
 
-        public TFilesFragment(String id)
-        {
-            this.id = id;
-        }
+        //public TFilesFragment(String id)
+        //{
+          //  this.id = id;
+        //}
 
         public TFilesFragment()
         {
+
+        }
+
+        void setID(String id) {
+            this.id = id;
         }
 
         @Override
