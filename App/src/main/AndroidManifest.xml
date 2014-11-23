@@ -95,7 +95,7 @@
         <service
             android:name="com.simple.furk.FurkServiceGuideExtension"
             android:description="@string/extension_description"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/extension_title" >
             <intent-filter>

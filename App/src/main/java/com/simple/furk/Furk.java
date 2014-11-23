@@ -21,7 +21,6 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
-import com.battlelancer.seriesguide.api.Episode;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.simple.furk.adapter.ActiveFilesAdapter;
@@ -33,7 +32,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
@@ -71,16 +69,23 @@ public class Furk extends ActionBarActivity
 
     private void handleIntent() {
 
-        if (getIntent().getAction() == "com.simple.furk.TORRENT_SEARCH") {
+        if (getIntent().getAction().equals("com.simple.furk.TORRENT_SEARCH")) {
             torrentSearch();
         }
         else if (getIntent().getScheme() != null) {
-            addTorrent();
+            addTorrent(getIntent().getScheme());
         }
     }
 
-    private void addTorrent() {
+    private void addTorrent(String scheme) {
         String url = getIntent().getDataString();
+        if(scheme.contains("magnet")) {
+            try {
+                url = java.net.URLDecoder.decode(url, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("url", url);
         ProgressDialog dialog = new ProgressDialog(this);
@@ -115,7 +120,7 @@ public class Furk extends ActionBarActivity
                             String query = getIntent().getExtras().getString("query");
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             try {
-                                intent.setData(Uri.parse("http://thepiratebay.se/search/"+ URLEncoder.encode(query,"UTF-8")+"/0/7/0"));
+                                intent.setData(Uri.parse("http://thepiratebay.se/search/"+ URLEncoder.encode(query,"UTF-8")+"/0/0/1"));
                             } catch (UnsupportedEncodingException e1) {
                                 e1.printStackTrace();
                             }
@@ -300,9 +305,20 @@ public class Furk extends ActionBarActivity
                     JSONArray files = response.getJSONArray("files");
                     if(files.length() > 0)
                     {
-                        Intent intent = new Intent(this,FileActivity.class);
-                        intent.putExtra("file",files.getJSONObject(0).toString());
-                        startActivity(intent);
+                        try {
+                            files.getJSONObject(0).getString("url_dl");
+                            Intent intent = new Intent(this, FileActivity.class);
+                            intent.putExtra("file", files.getJSONObject(0).toString());
+                            startActivity(intent);
+                        }
+                        catch (JSONException e)
+                        {
+                            FragmentManager fragmentManager = getFragmentManager();
+                            fragmentManager.beginTransaction()
+                                    .replace(R.id.container, new ActiveFilesFragment())
+                                    .commit();
+                            mTitle = getString(R.string.title_section2);
+                        }
                     }
                     else
                     {
