@@ -24,6 +24,7 @@ public class MyFilesAdapter extends FilesAdapter {
 
     private SharedPreferences mPrefs;
     private int loaderPos;
+    private boolean loaderEnabled;
     private Boolean firstLoad;
     private final Furk.MyFilesFragment myFilesFragment;
 
@@ -33,19 +34,25 @@ public class MyFilesAdapter extends FilesAdapter {
         mPrefs = context.getSharedPreferences("furk_cache",0);
         loaderPos = 0;
         firstLoad = true;
+        loaderEnabled = true;
     }
 
     @Override
     public void Execute(Object... args)
     {
-        if(mPrefs.contains("my_files_cache"))
+        if(mPrefs.contains("my_files_cache")){
             try {
                 jArrayChain = new JSONArrayChain(new JSONArray(mPrefs.getString("my_files_cache",null)));
             } catch (JSONException e) {
-                jArrayChain.clear();
+                jArrayChain = new JSONArrayChain();
             }
+        }
+        else{
+            jArrayChain = new JSONArrayChain();
+        }
+        loaderPos = 0;
         firstLoad = true;
-
+        loaderEnabled = true;
         APIClient.get(myFilesFragment.getActivity(),"file/get",this);
         ((Furk)context).setRefreshing();
     }
@@ -57,7 +64,7 @@ public class MyFilesAdapter extends FilesAdapter {
         {
             SharedPreferences.Editor ed = mPrefs.edit();
             ed.putString("my_files_cache",jArrayChain.getJSONArray(0).toString());
-            ed.commit();
+            ed.apply();
         }
     }
 
@@ -69,10 +76,13 @@ public class MyFilesAdapter extends FilesAdapter {
                     jArrayChain.clear();
                     firstLoad = false;
                 }
-                jArrayChain.addJSONArray(jArray);
+                if(jArray.length() == 0)
+                    loaderEnabled = false;
+                else
+                    jArrayChain.addJSONArray(jArray);
             }
             catch (Exception e) {
-                    jArrayChain.clear();
+                    loaderEnabled = false;
                     message =  "Invalid server response. "+ e.getMessage();
             }
             finally {
@@ -95,7 +105,7 @@ public class MyFilesAdapter extends FilesAdapter {
             Log.d("furk","fragment disposed before async api request finished");
         }
         finally {
-            jArrayChain.clear();
+            loaderEnabled = false;
             notifyDataSetChanged();
         }
     }
@@ -104,11 +114,11 @@ public class MyFilesAdapter extends FilesAdapter {
     @Override
     public int getCount() {
         int length = jArrayChain.length();
-        if(length > 0)
+        if(length > 0 && loaderEnabled)
            //Add an extra listview item for the loading spinner
            return length + 1;
         else
-            return 0;
+            return length;
     }
 
     @Override
@@ -169,8 +179,8 @@ public class MyFilesAdapter extends FilesAdapter {
             try {
                 JSONObject jsonObj = jArrayChain.getJSONObject(position);
                 strTitle = Html.fromHtml(jsonObj.getString("name")).toString();
-                strDescription = APIUtils.formatSize(jsonObj.getString("size"));
-                strDescription += "  " + APIUtils.formatDate(jsonObj.getString("ctime"));
+                strDescription = "Size: " + APIUtils.formatSize(jsonObj.getString("size"));
+                strDescription += "  Added: "+  APIUtils.formatDate(jsonObj.getString("ctime"));
             }
             catch (JSONException e)
             {

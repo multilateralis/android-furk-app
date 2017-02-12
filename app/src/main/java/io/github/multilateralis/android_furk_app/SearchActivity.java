@@ -52,6 +52,7 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
 
     private void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
+        if(actionBar == null) return;
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);

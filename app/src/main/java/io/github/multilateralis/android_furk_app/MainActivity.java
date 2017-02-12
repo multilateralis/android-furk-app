@@ -18,9 +18,9 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if(getIntent().getAction().equals("io.github.multilateralis.android_furk_app.LOGOUT"))
+        if(getIntent().getAction() != null && getIntent().getAction().equals("io.github.multilateralis.android_furk_app.LOGOUT"))
         {
-            preferences.edit().remove("api_key").commit();
+            preferences.edit().remove("api_key").apply();
         }
 
 
@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         if(apiKey.isEmpty())
         {
             Intent intent = new Intent(this,LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivityForResult(intent,1);
         }
         else {
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+        else
+            finish();
     }
 
     @Override
@@ -61,16 +64,16 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
 }

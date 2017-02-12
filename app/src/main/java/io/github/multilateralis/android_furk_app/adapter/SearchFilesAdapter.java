@@ -208,9 +208,9 @@ public class SearchFilesAdapter extends FilesAdapter {
                 JSONObject jsonObj =  jArrayChain.getJSONObject(position);
                 strTitle = Html.fromHtml(jsonObj.getString("name")).toString();
 
-                strDescription = APIUtils.formatSize(jsonObj.getString("size"));
+                strDescription = "Size: " + APIUtils.formatSize(jsonObj.getString("size"));
                 if(jsonObj.has("bitrate"))
-                    strDescription += "  "+ APIUtils.formatBitRate(jsonObj.getString("bitrate"));
+                    strDescription += "  Bitrate: " + APIUtils.formatBitRate(jsonObj.getString("bitrate"));
                 description.setText(strDescription);
                 String is_ready = jsonObj.getString("is_ready");
                 if(is_ready.equals("0"))

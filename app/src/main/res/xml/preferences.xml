@@ -8,6 +8,7 @@
             android:action="io.github.multilateralis.android_furk_app.LOGOUT"
             android:targetPackage="io.github.multilateralis.android_furk_app"
             android:targetClass="io.github.multilateralis.android_furk_app.MainActivity"
+            android:launchMode="singleInstance"
             />
     </Preference>
 

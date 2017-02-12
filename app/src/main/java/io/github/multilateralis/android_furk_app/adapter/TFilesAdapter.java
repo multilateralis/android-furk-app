@@ -155,9 +155,9 @@ public class TFilesAdapter extends FilesAdapter {
         {
             JSONObject jsonObj =  jArrayChain.getJSONObject(position);
             strTitle = Html.fromHtml(jsonObj.getString("name")).toString();
-            strDescription = APIUtils.formatSize(jsonObj.getString("size"));
+            strDescription = "Size: " + APIUtils.formatSize(jsonObj.getString("size"));
             if(jsonObj.has("bitrate"))
-                strDescription += "  "+ APIUtils.formatBitRate(jsonObj.getString("bitrate"));
+                strDescription += "  Bitrate: " + APIUtils.formatBitRate(jsonObj.getString("bitrate"));
         }
         catch (JSONException e)
         {

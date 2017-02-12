@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -42,11 +43,11 @@ public class Furk extends AppCompatActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private int mPosition;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
-    private CharSequence mTitle;
     private boolean refreshing;
     private boolean collapseSearch;
 
@@ -59,7 +60,6 @@ public class Furk extends AppCompatActivity
         setContentView(R.layout.activity_furk);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -70,7 +70,7 @@ public class Furk extends AppCompatActivity
 
     private void handleIntent() {
 
-        if (getIntent().getAction().equals("io.github.multilateralis.android_furk_app.TORRENT_SEARCH")) {
+        if (getIntent().getAction() != null && getIntent().getAction().equals("io.github.multilateralis.android_furk_app.TORRENT_SEARCH")) {
             torrentSearch();
         }
         else if (getIntent().getScheme() != null) {
@@ -142,11 +142,13 @@ public class Furk extends AppCompatActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-
+        mPosition = position;
         if(position == 2)
         {
-            Intent intent = new Intent(this,SettingsActivity.class);
-            startActivity(intent);
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, new SettingsFragment(),"CURRENT")
+                    .commit();
         }
         else if(position == 0)
         {
@@ -164,20 +166,18 @@ public class Furk extends AppCompatActivity
         }
     }
 
-    public void onSectionAttached(int number) {
-        switch (number) {
+    public CharSequence getFragmentTitle() {
+        switch (mPosition) {
+            case 0:
+                return getString(R.string.title_section1);
             case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
+                return getString(R.string.title_section2);
             case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
+                return getString(R.string.title_section3);
             case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-            case 4:
-                mTitle = getString(R.string.title_section4);
-                break;
+                return getString(R.string.title_section4);
+            default:
+                return getTitle();
         }
     }
 
@@ -209,27 +209,27 @@ public class Furk extends AppCompatActivity
 
     public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
+        if(actionBar == null) return;
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_action_menu);
+        actionBar.setTitle(getFragmentTitle());
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.furk, menu);
             restoreActionBar();
-
-            SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-            searchView.setOnQueryTextListener(this);
-            searchView.setIconifiedByDefault(false);
-            searchView.setQueryHint("Search Furk.net");
-
-            return true;
+            if(mPosition != 2 ) {
+                getMenuInflater().inflate(R.menu.furk, menu);
+                SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+                searchView.setOnQueryTextListener(this);
+                searchView.setIconifiedByDefault(false);
+                searchView.setQueryHint("Search Furk.net");
+                return true;
+            }
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -285,7 +285,7 @@ public class Furk extends AppCompatActivity
         invalidateOptionsMenu();
         Intent intent = new Intent(this,SearchActivity.class);
         intent.putExtra("query",s);
-        startActivity(intent);
+        startActivityForResult(intent,2);
 
         return false;
     }
@@ -310,7 +310,7 @@ public class Furk extends AppCompatActivity
                             files.getJSONObject(0).getString("url_dl");
                             Intent intent = new Intent(this, FileActivity.class);
                             intent.putExtra("file", files.getJSONObject(0).toString());
-                            startActivity(intent);
+                            startActivityForResult(intent,3);
                         }
                         catch (JSONException e)
                         {
@@ -318,7 +318,7 @@ public class Furk extends AppCompatActivity
                             fragmentManager.beginTransaction()
                                     .replace(R.id.container, new ActiveFilesFragment())
                                     .commit();
-                            mTitle = getString(R.string.title_section2);
+                            mPosition = 1;
                         }
                     }
                     else
@@ -327,7 +327,7 @@ public class Furk extends AppCompatActivity
                         fragmentManager.beginTransaction()
                                 .replace(R.id.container, new ActiveFilesFragment())
                                 .commit();
-                        mTitle = getString(R.string.title_section2);
+                        mPosition = 1;
                     }
 
                 }
@@ -349,6 +349,15 @@ public class Furk extends AppCompatActivity
 
     }
 
+
+    public static class SettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.preferences);
+        }
+
+    }
 
     public static class MyFilesFragment extends ListFragment {
 
@@ -376,20 +385,13 @@ public class Furk extends AppCompatActivity
 
 
         @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((Furk) activity).onSectionAttached(1);
-
-        }
-
-        @Override
         public void onListItemClick(ListView l, View v, int position, long id) {
 
             try {
                 JSONObject jObj = ((FilesAdapter) l.getAdapter()).getJSONObject(position);
                 Intent intent = new Intent(getActivity(),FileActivity.class);
                 intent.putExtra("file",jObj.toString());
-                startActivity(intent);
+                startActivityForResult(intent,1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -482,11 +484,6 @@ public class Furk extends AppCompatActivity
             Toast.makeText(getActivity(),"Error adding file to downloads. "+e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((Furk) activity).onSectionAttached(2);
-        }
     }
 }
 

@@ -64,6 +64,7 @@ public class FileActivity extends AppCompatActivity {
 
     private void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
+        if(actionBar == null) return;
         actionBar.setDisplayHomeAsUpEnabled(true);
         try {
             actionBar.setTitle(file.getString("name"));
