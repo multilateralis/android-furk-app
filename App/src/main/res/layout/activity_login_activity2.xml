@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.simple.furk.LoginActivity2">
+    tools:context="io.github.multilateralis.android_furk_app.LoginActivity2">
 
     <!-- Login progress -->
     <ProgressBar

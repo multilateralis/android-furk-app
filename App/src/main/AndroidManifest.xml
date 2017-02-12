@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.simple.furk"
-    android:versionCode="5"
-    android:versionName="0.5" >
-
-    <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="19" />
+    package="io.github.multilateralis.android_furk_app">
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.simple.furk.MainActivity"
+            android:name="io.github.multilateralis.android_furk_app.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,7 +47,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.simple.furk.Furk"
+            android:name="io.github.multilateralis.android_furk_app.Furk"
             android:label="@string/app_name"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -65,25 +59,25 @@
                 android:value="@xml/searchable" />
         </activity>
         <activity
-            android:name="com.simple.furk.FileActivity"
+            android:name="io.github.multilateralis.android_furk_app.FileActivity"
             android:label="@string/app_name" >
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".Furk" />
         </activity>
         <activity
-            android:name="com.simple.furk.LoginActivity"
+            android:name="io.github.multilateralis.android_furk_app.LoginActivity"
             android:label="Login" >
         </activity>
         <activity
-            android:name="com.simple.furk.SettingsActivity"
+            android:name="io.github.multilateralis.android_furk_app.SettingsActivity"
             android:label="@string/settings_title" >
         </activity>
         <activity
-            android:name="com.simple.furk.SearchActivity"
+            android:name="io.github.multilateralis.android_furk_app.SearchActivity"
             android:label="@string/title_activity_search"
             android:launchMode="singleTop"
-            android:parentActivityName="com.simple.furk.Furk" >
+            android:parentActivityName="io.github.multilateralis.android_furk_app.Furk" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -93,10 +87,10 @@
                 android:value="@xml/searchable" />
         </activity>
         <service
-            android:name="com.simple.furk.FurkServiceGuideExtension"
+            android:name="io.github.multilateralis.android_furk_app.FurkServiceGuideExtension"
             android:description="@string/extension_description"
             android:exported="true"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@mipmap/ic_launcher"
             android:label="@string/extension_title" >
             <intent-filter>
                 <action android:name="com.battlelancer.seriesguide.api.SeriesGuideExtension" />

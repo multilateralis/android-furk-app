@@ -5,5 +5,5 @@
     android:choiceMode="singleChoice"
     android:divider="#ffababab"
     android:dividerHeight="0.5dp"
-    tools:context="com.simple.furk.NavigationDrawerFragment"
+    tools:context="io.github.multilateralis.android_furk_app.NavigationDrawerFragment"
     android:background="@drawable/app_background"/>
