@@ -1,6 +1,5 @@
 package io.github.multilateralis.android_furk_app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -43,7 +42,7 @@ public class Furk extends AppCompatActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private int mPosition;
+    private int mPosition = -1;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -140,28 +139,47 @@ public class Furk extends AppCompatActivity
 
 
     @Override
+    public void onBackPressed() {
+        if(mPosition != 0){
+            switchFragment(0);
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        mPosition = position;
+        switchFragment(position);
+    }
+
+    private void switchFragment(int position){
+
+        if(mPosition == position) return;
+
         if(position == 2)
         {
+            mPosition = 2;
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new SettingsFragment(),"CURRENT")
                     .commit();
         }
-        else if(position == 0)
+        else if(position == 1)
         {
+            mPosition = 1;
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, new MyFilesFragment(),"CURRENT")
+                    .replace(R.id.container, new ActiveFilesFragment(),"CURRENT")
                     .commit();
         }
         else
         {
+            mPosition = 0;
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, new ActiveFilesFragment(),"CURRENT")
+                    .replace(R.id.container, new MyFilesFragment(),"CURRENT")
                     .commit();
         }
     }
@@ -314,20 +332,12 @@ public class Furk extends AppCompatActivity
                         }
                         catch (JSONException e)
                         {
-                            FragmentManager fragmentManager = getFragmentManager();
-                            fragmentManager.beginTransaction()
-                                    .replace(R.id.container, new ActiveFilesFragment())
-                                    .commit();
-                            mPosition = 1;
+                            switchFragment(1);
                         }
                     }
                     else
                     {
-                        FragmentManager fragmentManager = getFragmentManager();
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.container, new ActiveFilesFragment())
-                                .commit();
-                        mPosition = 1;
+                        switchFragment(1);
                     }
 
                 }

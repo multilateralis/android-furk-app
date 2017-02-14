@@ -64,6 +64,7 @@ public class ActiveFilesAdapter extends FilesAdapter {
                     if(name != "null")
                         failed.put(jArray.get(i));
                 }
+                jArrayChain.clear();
                 jArrayChain.addJSONArray(active);
                 jArrayChain.addJSONArray(failed);
             }

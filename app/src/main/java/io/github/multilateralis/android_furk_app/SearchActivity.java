@@ -28,6 +28,7 @@ import java.util.HashMap;
 public class SearchActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private String searchQuery;
+    private Menu mMenu;
 
 
     @Override
@@ -35,19 +36,38 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        searchQuery = getIntent().getExtras().getString("query");
+        if(getIntent() != null && getIntent().getExtras() != null)
+            doSearch(getIntent().getExtras().getString("query"));
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(getIntent() != null && getIntent().getExtras() != null){
+            doSearch(intent.getExtras().getString("query"));
+            if(mMenu != null){
+                MenuItem searchMenuItem = mMenu.findItem( R.id.action_search);
+                searchMenuItem.expandActionView();
+                SearchView searchView = (SearchView) searchMenuItem.getActionView();
+                searchView.clearFocus();
+                searchView.setQuery(searchQuery,false);
+            }
 
-        if(savedInstanceState == null) {
+        }
+
+    }
+
+    private void doSearch(String query){
+        if(query != null && !query.equals(searchQuery)) {
+            searchQuery = query;
             SearchFragment searchFragment = new SearchFragment();
             searchFragment.setSearchQuery(searchQuery);
             searchFragment.setSortQuery("cached");
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
-                    .add(R.id.container, searchFragment,"CURRENT")
+                    .replace(R.id.container, searchFragment,"CURRENT")
                     .commit();
         }
-
     }
 
     private void restoreActionBar() {
@@ -74,6 +94,7 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
         searchView.setOnQueryTextListener(this);
         searchView.setIconifiedByDefault(false);
 
+        mMenu = menu;
         return true;
     }
 

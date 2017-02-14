@@ -70,12 +70,8 @@
             android:label="Login" >
         </activity>
         <activity
-            android:name="io.github.multilateralis.android_furk_app.SettingsActivity"
-            android:label="@string/settings_title" >
-        </activity>
-        <activity
             android:name="io.github.multilateralis.android_furk_app.SearchActivity"
-            android:label="@string/title_activity_search"
+            android:label="@string/search_title"
             android:launchMode="singleTop"
             android:parentActivityName="io.github.multilateralis.android_furk_app.Furk" >
             <intent-filter>
@@ -91,7 +87,7 @@
             android:description="@string/extension_description"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="@string/extension_title" >
+            android:label="@string/search_title" >
             <intent-filter>
                 <action android:name="com.battlelancer.seriesguide.api.SeriesGuideExtension" />
             </intent-filter>
@@ -99,5 +95,4 @@
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>
