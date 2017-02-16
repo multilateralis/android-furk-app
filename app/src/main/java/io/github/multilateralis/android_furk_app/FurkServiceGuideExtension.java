@@ -16,6 +16,7 @@ public class FurkServiceGuideExtension extends SeriesGuideExtension {
     protected void onRequest(int episodeIdentifier, Episode episode) {
 
         Intent intent = new Intent(this, SearchActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         String query = buildEpisodeQuery(episode);
         intent.putExtra("query",query);
         publishAction(new Action.Builder("Furk.net search", episodeIdentifier)
@@ -26,6 +27,7 @@ public class FurkServiceGuideExtension extends SeriesGuideExtension {
     protected void onRequest(int movieIdentifier, Movie movie) {
 
         Intent intent = new Intent(this, SearchActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         String query = buildMovieQuery(movie);
         intent.putExtra("query",query);
         publishAction(new Action.Builder("Furk.net search", movieIdentifier)

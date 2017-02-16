@@ -48,8 +48,7 @@
         </activity>
         <activity
             android:name="io.github.multilateralis.android_furk_app.Furk"
-            android:label="@string/app_name"
-            android:launchMode="singleTop" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -61,9 +60,6 @@
         <activity
             android:name="io.github.multilateralis.android_furk_app.FileActivity"
             android:label="@string/app_name" >
-            <meta-data
-                android:name="android.app.default_searchable"
-                android:value=".Furk" />
         </activity>
         <activity
             android:name="io.github.multilateralis.android_furk_app.LoginActivity"
@@ -72,7 +68,6 @@
         <activity
             android:name="io.github.multilateralis.android_furk_app.SearchActivity"
             android:label="@string/search_title"
-            android:launchMode="singleTop"
             android:parentActivityName="io.github.multilateralis.android_furk_app.Furk" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />

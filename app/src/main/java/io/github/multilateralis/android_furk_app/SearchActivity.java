@@ -264,10 +264,9 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
                 if(jObj.getString("is_ready").equals("1")) {
                     Intent intent = new Intent(getActivity(), FileActivity.class);
                     intent.putExtra("file", jObj.toString());
-                    startActivity(intent);
+                    startActivityForResult(intent,0);
                 }
-                else
-                {
+                else {
                     showRetryDialog(jObj);
                 }
             } catch (Exception e) {
